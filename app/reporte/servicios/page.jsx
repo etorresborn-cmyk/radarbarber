@@ -72,9 +72,14 @@ async function generarPDFServicios(r) {
       .replace(/[^\x00-\x7F]/g,'');
   }
 
-  function altH(texto, ancho, size = 9.5, lh = 5.2) {
+  function getLineas(texto, ancho, size = 9.5) {
     doc.setFontSize(size);
-    return doc.splitTextToSize(limpiar(texto), ancho).length * lh;
+    doc.setFont('helvetica', 'normal');
+    return doc.splitTextToSize(limpiar(texto), ancho);
+  }
+
+  function altH(texto, ancho, size = 9.5, lh = 5.2) {
+    return getLineas(texto, ancho, size).length * lh;
   }
 
   function chk(h) {
@@ -84,99 +89,155 @@ async function generarPDFServicios(r) {
   }
 
   function dibujarFooter() {
-    doc.setFillColor(...VD); doc.rect(0, FOOTER_Y, 210, 14, 'F');
-    doc.setFillColor(...OR); doc.rect(0, FOOTER_Y, 210, 1, 'F');
-    doc.setFontSize(7.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(...VC);
-    doc.text('RadarBarber  |  Plan de Servicios', M, FOOTER_Y + 8);
+    doc.setFillColor(VD[0], VD[1], VD[2]); doc.rect(0, FOOTER_Y, 210, 14, 'F');
+    doc.setFillColor(OR[0], OR[1], OR[2]); doc.rect(0, FOOTER_Y, 210, 1, 'F');
+    doc.setFontSize(7.5); doc.setFont('helvetica', 'normal');
+    doc.setTextColor(VC[0], VC[1], VC[2]);
+    doc.text('RadarBarber  |  Reporte de Servicios', M, FOOTER_Y + 8);
     doc.text(`Pagina ${numPag}`, 210 - M, FOOTER_Y + 8, { align: 'right' });
   }
 
   function dibujarHeader() {
-    doc.setFillColor(...VD); doc.rect(0, 0, 210, 20, 'F');
-    doc.setFillColor(...OR); doc.rect(0, 20, 210, 1.2, 'F');
-    doc.setFillColor(...VM); doc.roundedRect(M, 4, 12, 12, 2, 2, 'F');
-    doc.setFontSize(7); doc.setFont('helvetica', 'bold'); doc.setTextColor(...BL);
-    doc.text('RB', M + 6, 12, { align: 'center' });
-    doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(...BL);
-    doc.text('RADARBARBER', M + 16, 9);
-    doc.setFontSize(7.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(...VC);
-    doc.text('Plan de Servicios', M + 16, 15);
+    doc.setFillColor(VD[0], VD[1], VD[2]); doc.rect(0, 0, 210, 20, 'F');
+    doc.setFillColor(OR[0], OR[1], OR[2]); doc.rect(0, 20, 210, 1.2, 'F');
+    doc.setFillColor(VM[0], VM[1], VM[2]); doc.roundedRect(M, 4, 12, 12, 2, 2, 'F');
+    doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+    doc.setTextColor(BL[0], BL[1], BL[2]); doc.text('RB', M + 6, 12, { align: 'center' });
+    doc.setFontSize(9); doc.setFont('helvetica', 'bold');
+    doc.setTextColor(BL[0], BL[1], BL[2]); doc.text('RADARBARBER', M + 16, 9);
+    doc.setFontSize(7.5); doc.setFont('helvetica', 'normal');
+    doc.setTextColor(VC[0], VC[1], VC[2]); doc.text('Reporte de Servicios', M + 16, 15);
   }
 
-  function escribir(texto, x, yPos, maxW, size = 9.5, bold = false, color = CA, lh = 5.2) {
+  function escribir(texto, x, yPos, maxW, size = 9.5, bold = false, colorArr = CA) {
     doc.setFontSize(size); doc.setFont('helvetica', bold ? 'bold' : 'normal');
-    doc.setTextColor(...color);
+    doc.setTextColor(colorArr[0], colorArr[1], colorArr[2]);
     const lineas = doc.splitTextToSize(limpiar(texto), maxW);
     doc.text(lineas, x, yPos);
-    return lineas.length * lh;
+    return lineas.length * 5.2;
   }
 
   function seccionHeader(num, titulo) {
     chk(18);
-    doc.setFillColor(...VD); doc.roundedRect(M, y, PW, 12, 2, 2, 'F');
-    doc.setFillColor(...OR); doc.circle(M + 8, y + 6, 5, 'F');
-    doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(...BL);
-    doc.text(num, M + 8, y + 8.5, { align: 'center' });
-    doc.setFontSize(11); doc.setFont('helvetica', 'bold'); doc.setTextColor(...BL);
-    doc.text(limpiar(titulo), M + 18, y + 8);
+    doc.setFillColor(VD[0], VD[1], VD[2]); doc.roundedRect(M, y, PW, 12, 2, 2, 'F');
+    doc.setFillColor(OR[0], OR[1], OR[2]); doc.circle(M + 8, y + 6, 5, 'F');
+    doc.setFontSize(8); doc.setFont('helvetica', 'bold');
+    doc.setTextColor(BL[0], BL[1], BL[2]); doc.text(num, M + 8, y + 8.5, { align: 'center' });
+    doc.setFontSize(11); doc.setFont('helvetica', 'bold');
+    doc.setTextColor(BL[0], BL[1], BL[2]); doc.text(limpiar(titulo), M + 18, y + 8);
     y += 18;
   }
 
-  function etq(texto, color = OR) {
+  function etq(texto, colorArr = OR) {
     chk(8); doc.setFontSize(7.5); doc.setFont('helvetica', 'bold');
-    doc.setTextColor(...color); doc.text(limpiar(texto.toUpperCase()), M, y); y += 5;
+    doc.setTextColor(colorArr[0], colorArr[1], colorArr[2]);
+    doc.text(limpiar(texto.toUpperCase()), M, y); y += 5;
   }
 
   function parr(texto, indent = 0, size = 9.5) {
-    const h = altH(texto, PW - indent, size) + 3; chk(h);
-    escribir(texto, M + indent, y, PW - indent, size); y += h;
+    const lineas = getLineas(texto, PW - indent, size);
+    const h = lineas.length * 5.2 + 3; chk(h);
+    doc.setFontSize(size); doc.setFont('helvetica', 'normal');
+    doc.setTextColor(CA[0], CA[1], CA[2]);
+    doc.text(lineas, M + indent, y); y += h;
   }
 
-  function cajaDestacada(texto, bgColor = VS, borde = VC, lineLeft = VM) {
-    doc.setFontSize(9.5); doc.setFont('helvetica', 'normal');
-    const lineas = doc.splitTextToSize(limpiar(texto), PW - 16);
+  function cajaDestacada(texto, bgArr = VS, bordeArr = VC, lineArr = VM) {
+    const lineas = getLineas(texto, PW - 16);
     const h = lineas.length * 5.2 + 14; chk(h + 2);
-    doc.setFillColor(...bgColor); doc.setDrawColor(...borde); doc.setLineWidth(0.4);
-    doc.roundedRect(M, y, PW, h, 2, 2, 'FD');
-    doc.setFillColor(...lineLeft); doc.rect(M, y, 3.5, h, 'F');
-    doc.setTextColor(...CA); doc.text(lineas, M + 7, y + 8); y += h + 5;
+    doc.setFillColor(bgArr[0], bgArr[1], bgArr[2]);
+    doc.setDrawColor(bordeArr[0], bordeArr[1], bordeArr[2]);
+    doc.setLineWidth(0.4); doc.roundedRect(M, y, PW, h, 2, 2, 'FD');
+    doc.setFillColor(lineArr[0], lineArr[1], lineArr[2]);
+    doc.rect(M, y, 3.5, h, 'F');
+    doc.setFontSize(9.5); doc.setFont('helvetica', 'normal');
+    doc.setTextColor(CA[0], CA[1], CA[2]);
+    doc.text(lineas, M + 7, y + 8); y += h + 5;
+  }
+
+  function bloqueAccion(acciones, bgArr, colorArr, titulo) {
+    const hTitulo = 9 + 4;
+    const hAcciones = acciones.reduce((acc, a) => acc + altH(a, PW - 12) + 5, 0);
+    const hTotal = hTitulo + hAcciones + 4;
+    chk(hTotal);
+    doc.setFillColor(bgArr[0], bgArr[1], bgArr[2]);
+    doc.roundedRect(M, y, PW, 9, 2, 2, 'F');
+    doc.setFontSize(8); doc.setFont('helvetica', 'bold');
+    doc.setTextColor(colorArr[0], colorArr[1], colorArr[2]);
+    doc.text(titulo, M + 6, y + 6); y += 13;
+    acciones.forEach((accion, i) => {
+      const h = altH(accion, PW - 12) + 4;
+      doc.setFillColor(bgArr[0], bgArr[1], bgArr[2]);
+      doc.circle(M + 3.5, y + 1.5, 3.5, 'F');
+      doc.setFontSize(7.5); doc.setFont('helvetica', 'bold');
+      doc.setTextColor(colorArr[0], colorArr[1], colorArr[2]);
+      doc.text(`${i + 1}`, M + 3.5, y + 3.5, { align: 'center' });
+      escribir(accion, M + 10, y, PW - 12);
+      y += h + 1;
+    });
+    y += 5;
+  }
+
+  function bloqueResultados(resultados) {
+    const hTitulo = 9 + 4;
+    const hItems = resultados.reduce((acc, r) => acc + altH(r, PW - 12) + 5, 0);
+    chk(hTitulo + hItems);
+    doc.setFillColor(VS[0], VS[1], VS[2]);
+    doc.roundedRect(M, y, PW, 9, 2, 2, 'F');
+    doc.setFontSize(8); doc.setFont('helvetica', 'bold');
+    doc.setTextColor(VD[0], VD[1], VD[2]);
+    doc.text('EN 30 DIAS DEBERIAS VER', M + 6, y + 6); y += 13;
+    resultados.forEach((resultado) => {
+      const h = altH(resultado, PW - 12) + 4;
+      doc.setFillColor(VM[0], VM[1], VM[2]);
+      doc.roundedRect(M, y - 1, 6, 6, 1, 1, 'F');
+      doc.setFontSize(6); doc.setFont('helvetica', 'bold');
+      doc.setTextColor(BL[0], BL[1], BL[2]);
+      doc.text('OK', M + 3, y + 3, { align: 'center' });
+      escribir(resultado, M + 10, y, PW - 12);
+      y += h + 1;
+    });
+    y += 4;
   }
 
   function esp(n = 5) { y += n; }
   function sep() {
-    chk(8); doc.setDrawColor(...CB); doc.setLineWidth(0.3);
+    chk(8); doc.setDrawColor(CB[0], CB[1], CB[2]); doc.setLineWidth(0.3);
     doc.line(M, y, M + PW, y); y += 6;
   }
 
   // ══ PORTADA ══════════════════════════════════════════════════════════
-  doc.setFillColor(...VD); doc.rect(0, 0, 210, 297, 'F');
+  doc.setFillColor(VD[0], VD[1], VD[2]); doc.rect(0, 0, 210, 297, 'F');
   doc.setDrawColor(45, 106, 79); doc.setLineWidth(0.3);
   for (let i = 0; i < 8; i++) doc.line(0, 30 + i * 35, 210, 30 + i * 35);
-  doc.setFillColor(...VM); doc.roundedRect(M, 28, 22, 22, 4, 4, 'F');
-  doc.setFillColor(...OR); doc.roundedRect(M, 28, 22, 3, 1, 1, 'F');
-  doc.setFontSize(13); doc.setFont('helvetica', 'bold'); doc.setTextColor(...BL);
-  doc.text('RB', M + 11, 44, { align: 'center' });
-  doc.setFontSize(44); doc.setFont('helvetica', 'bold'); doc.setTextColor(...BL);
-  doc.text('RADAR', M, 95); doc.setTextColor(...OS); doc.text('BARBER', M, 118);
-  doc.setFillColor(...OR); doc.rect(M, 125, 90, 1.5, 'F');
-  doc.setFontSize(18); doc.setFont('helvetica', 'normal'); doc.setTextColor(...BL);
-  doc.text('Plan de', M, 142); doc.setFont('helvetica', 'bold');
-  doc.text('Servicios', M, 155);
-  doc.setFontSize(10); doc.setFont('helvetica', 'normal'); doc.setTextColor(...VC);
+  doc.setFillColor(VM[0], VM[1], VM[2]); doc.roundedRect(M, 28, 22, 22, 4, 4, 'F');
+  doc.setFillColor(OR[0], OR[1], OR[2]); doc.roundedRect(M, 28, 22, 3, 1, 1, 'F');
+  doc.setFontSize(13); doc.setFont('helvetica', 'bold');
+  doc.setTextColor(BL[0], BL[1], BL[2]); doc.text('RB', M + 11, 44, { align: 'center' });
+  doc.setFontSize(44); doc.setFont('helvetica', 'bold');
+  doc.setTextColor(BL[0], BL[1], BL[2]); doc.text('RADAR', M, 95);
+  doc.setTextColor(OS[0], OS[1], OS[2]); doc.text('BARBER', M, 118);
+  doc.setFillColor(OR[0], OR[1], OR[2]); doc.rect(M, 125, 90, 1.5, 'F');
+  doc.setFontSize(18); doc.setFont('helvetica', 'normal');
+  doc.setTextColor(BL[0], BL[1], BL[2]); doc.text('Reporte de', M, 142);
+  doc.setFont('helvetica', 'bold'); doc.text('Servicios', M, 155);
+  doc.setFontSize(10); doc.setFont('helvetica', 'normal');
+  doc.setTextColor(VC[0], VC[1], VC[2]);
   doc.text('Aumenta tu ticket sin necesitar mas clientes', M, 168);
   doc.setFillColor(20, 52, 38); doc.roundedRect(M, 182, PW, 68, 4, 4, 'F');
-  doc.setFillColor(...OR); doc.rect(M, 182, 3.5, 68, 'F');
-  doc.setFontSize(8.5); doc.setFont('helvetica', 'bold'); doc.setTextColor(...OS);
-  doc.text('ESTE PLAN INCLUYE:', M + 10, 193);
-  const items = [
+  doc.setFillColor(OR[0], OR[1], OR[2]); doc.rect(M, 182, 3.5, 68, 'F');
+  doc.setFontSize(8.5); doc.setFont('helvetica', 'bold');
+  doc.setTextColor(OS[0], OS[1], OS[2]); doc.text('ESTE REPORTE INCLUYE:', M + 10, 193);
+  const portadaItems = [
     '01  Diagnostico de tu ticket actual vs potencial',
     '02  Los 3 servicios que debes agregar primero',
     '03  Script de upsell para cada servicio',
     '04  Tu nuevo menu de servicios sugerido',
     '05  Plan de implementacion semana a semana',
+    '06  Tu plan de accion — proximos 30 dias',
   ];
-  doc.setFont('helvetica', 'normal'); doc.setTextColor(...BL);
-  items.forEach((item, i) => doc.text(item, M + 10, 203 + i * 9));
+  doc.setFont('helvetica', 'normal'); doc.setTextColor(BL[0], BL[1], BL[2]);
+  portadaItems.forEach((item, i) => doc.text(item, M + 10, 200 + i * 8));
   doc.setFontSize(8); doc.setTextColor(60, 120, 90);
   const fecha = new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
   doc.text(`Generado el ${limpiar(fecha)}`, M, 268);
@@ -188,9 +249,7 @@ async function generarPDFServicios(r) {
 
   // S1 — Diagnóstico
   seccionHeader('01', 'DIAGNOSTICO DE TU TICKET ACTUAL');
-  parr(r.diagnostico.resumen);
-  esp(4);
-
+  parr(r.diagnostico.resumen); esp(4);
   const wM = (PW - 4) / 2;
   const vals = [
     { label: 'TICKET ACTUAL', val: r.diagnostico.ticket_actual_estimado, col: RJ, bg: RS, borde: [221, 180, 180] },
@@ -201,55 +260,56 @@ async function generarPDFServicios(r) {
   chk(hD + 2);
   vals.forEach((v, i) => {
     const x = M + i * (wM + 4);
-    doc.setFillColor(...v.bg); doc.setDrawColor(...v.borde); doc.setLineWidth(0.3);
-    doc.roundedRect(x, y, wM, hD, 2, 2, 'FD');
-    doc.setFontSize(7); doc.setFont('helvetica', 'bold'); doc.setTextColor(...v.col);
-    doc.text(v.label, x + 4, y + 7);
-    doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(...CA);
+    doc.setFillColor(v.bg[0], v.bg[1], v.bg[2]);
+    doc.setDrawColor(v.borde[0], v.borde[1], v.borde[2]);
+    doc.setLineWidth(0.3); doc.roundedRect(x, y, wM, hD, 2, 2, 'FD');
+    doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+    doc.setTextColor(v.col[0], v.col[1], v.col[2]); doc.text(v.label, x + 4, y + 7);
+    doc.setFontSize(9); doc.setFont('helvetica', 'bold');
+    doc.setTextColor(CA[0], CA[1], CA[2]);
     const linVal = doc.splitTextToSize(limpiar(v.val), wM - 8);
     doc.text(linVal, x + 4, y + 14);
   });
   y += hD + 4;
 
-  chk(12);
-  doc.setFillColor(...VS); doc.roundedRect(M, y, PW, 10, 2, 2, 'F');
-  doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(...VD);
   const linInc = doc.splitTextToSize(`Incremento mensual potencial: ${limpiar(r.diagnostico.incremento_mensual)}`, PW - 12);
-  doc.text(linInc, M + 6, y + 7);
-  y += Math.max(linInc.length * 5, 10) + 6;
-  esp(4);
+  const hInc = linInc.length * 5 + 10;
+  chk(hInc);
+  doc.setFillColor(VS[0], VS[1], VS[2]); doc.roundedRect(M, y, PW, hInc, 2, 2, 'F');
+  doc.setFontSize(9); doc.setFont('helvetica', 'bold');
+  doc.setTextColor(VD[0], VD[1], VD[2]); doc.text(linInc, M + 6, y + 7);
+  y += hInc + 6; esp(2);
 
   // S2 — Servicios recomendados
   seccionHeader('02', 'LOS 3 SERVICIOS QUE DEBES AGREGAR');
   r.servicios_recomendados.forEach((srv, i) => {
-    // Calcular altura total del bloque antes de dibujarlo
-    const hPorQue = altH(srv.por_que, PW - 12, 9) + 4;
+    const hPQ = altH(srv.por_que, PW - 12, 9) + 4;
     const hGrid = 22;
     const hScript = altH(srv.script_upsell, PW - 16) + 14;
     const hEtq = 10;
-    const hTotal = 14 + hPorQue + hGrid + hEtq + hScript + 10;
+    const hTotal = 14 + hPQ + hGrid + hEtq + hScript + 10;
     chk(hTotal);
 
     const colores = [VD, OR, [45, 100, 80]];
     const bgs = [VS, OS, [220, 240, 230]];
-    const bordes = [VC, [...OR], [150, 200, 170]];
+    const bordes = [VC, [200, 170, 100], [150, 200, 170]];
 
-    // Header servicio
-    doc.setFillColor(...bgs[i]); doc.roundedRect(M, y, PW, 12, 2, 2, 'F');
-    doc.setFillColor(...colores[i]); doc.rect(M, y, 4, 12, 'F');
-    doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(...colores[i]);
+    doc.setFillColor(bgs[i][0], bgs[i][1], bgs[i][2]);
+    doc.roundedRect(M, y, PW, 12, 2, 2, 'F');
+    doc.setFillColor(colores[i][0], colores[i][1], colores[i][2]);
+    doc.rect(M, y, 4, 12, 'F');
+    doc.setFontSize(10); doc.setFont('helvetica', 'bold');
+    doc.setTextColor(colores[i][0], colores[i][1], colores[i][2]);
     doc.text(`${i + 1}. ${limpiar(srv.nombre)}`, M + 8, y + 8);
     doc.setFontSize(13); doc.setFont('helvetica', 'bold');
     doc.text(limpiar(srv.precio_sugerido), M + PW - 4, y + 8, { align: 'right' });
     y += 14;
 
-    // Por qué
-    doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(...CA);
+    doc.setFontSize(9); doc.setFont('helvetica', 'normal');
+    doc.setTextColor(CA[0], CA[1], CA[2]);
     const linPQ = doc.splitTextToSize(limpiar(srv.por_que), PW - 8);
-    doc.text(linPQ, M + 4, y);
-    y += linPQ.length * 5 + 5;
+    doc.text(linPQ, M + 4, y); y += linPQ.length * 5 + 5;
 
-    // Grid de datos
     const gridItems = [
       { label: 'Tiempo extra', val: srv.tiempo_adicional },
       { label: 'Inversion inicial', val: srv.inversion_inicial },
@@ -259,44 +319,39 @@ async function generarPDFServicios(r) {
     chk(hGrid);
     gridItems.forEach((g, j) => {
       const x = M + j * (wG + 4);
-      doc.setFillColor(...CR); doc.setDrawColor(...CB); doc.setLineWidth(0.3);
-      doc.roundedRect(x, y, wG, hGrid - 2, 1, 1, 'FD');
-      doc.setFontSize(6.5); doc.setFont('helvetica', 'bold'); doc.setTextColor(...GR);
-      doc.text(limpiar(g.label.toUpperCase()), x + 3, y + 5);
-      doc.setFontSize(8.5); doc.setFont('helvetica', 'bold'); doc.setTextColor(...CA);
+      doc.setFillColor(CR[0], CR[1], CR[2]);
+      doc.setDrawColor(CB[0], CB[1], CB[2]);
+      doc.setLineWidth(0.3); doc.roundedRect(x, y, wG, hGrid - 2, 1, 1, 'FD');
+      doc.setFontSize(6.5); doc.setFont('helvetica', 'bold');
+      doc.setTextColor(GR[0], GR[1], GR[2]); doc.text(limpiar(g.label.toUpperCase()), x + 3, y + 5);
+      doc.setFontSize(8.5); doc.setFont('helvetica', 'bold');
+      doc.setTextColor(CA[0], CA[1], CA[2]);
       const linG = doc.splitTextToSize(limpiar(g.val), wG - 6);
       doc.text(linG, x + 3, y + 12);
     });
     y += hGrid + 3;
 
-    // Script upsell
-    etq('Script de upsell — lo que dices mientras cortas:');
+    etq('Script de upsell — lo que dices mientras cortas:', OR);
     cajaDestacada(
       srv.script_upsell,
       i === 0 ? VS : i === 1 ? OS : [220, 240, 230],
       i === 0 ? VC : i === 1 ? [200, 170, 100] : [150, 200, 170],
       colores[i]
     );
-
     if (i < r.servicios_recomendados.length - 1) { esp(2); sep(); }
   });
   esp(6);
 
   // S3 — Menú sugerido
   seccionHeader('03', 'TU NUEVO MENU DE SERVICIOS');
-  parr(r.menu_sugerido.descripcion);
-  esp(4);
+  parr(r.menu_sugerido.descripcion); esp(4);
   r.menu_sugerido.estructura.forEach((opcion, i) => {
     const esUltimo = i === r.menu_sugerido.estructura.length - 1;
     const hOp = altH(opcion, PW - 14, 9.5) + 10;
     chk(hOp + 2);
-    const bg = esUltimo ? VS : i % 2 === 0 ? CR : [245, 245, 240];
-    doc.setFillColor(...bg);
+    doc.setFillColor(...(esUltimo ? VS : i % 2 === 0 ? CR : [245, 245, 240]));
     doc.roundedRect(M, y - 2, PW, hOp, 1, 1, 'F');
-    if (esUltimo) {
-      doc.setFillColor(...VD);
-      doc.rect(M, y - 2, 3.5, hOp, 'F');
-    }
+    if (esUltimo) { doc.setFillColor(VD[0], VD[1], VD[2]); doc.rect(M, y - 2, 3.5, hOp, 'F'); }
     doc.setFontSize(9.5);
     doc.setFont('helvetica', esUltimo ? 'bold' : 'normal');
     doc.setTextColor(...(esUltimo ? VD : CA));
@@ -311,18 +366,26 @@ async function generarPDFServicios(r) {
   r.plan_implementacion.forEach((sem, i) => {
     const hAcc = altH(sem.accion, PW - 20, 9.5) + 14;
     chk(hAcc + 4);
-    doc.setFillColor(...OS); doc.roundedRect(M, y, PW, hAcc, 2, 2, 'F');
-    doc.setFillColor(...OR); doc.rect(M, y, 4, hAcc, 'F');
-    doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(...OR);
-    doc.text(limpiar(sem.semana), M + 8, y + 7);
-    doc.setFontSize(9.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(...CA);
+    doc.setFillColor(OS[0], OS[1], OS[2]); doc.roundedRect(M, y, PW, hAcc, 2, 2, 'F');
+    doc.setFillColor(OR[0], OR[1], OR[2]); doc.rect(M, y, 4, hAcc, 'F');
+    doc.setFontSize(8); doc.setFont('helvetica', 'bold');
+    doc.setTextColor(OR[0], OR[1], OR[2]); doc.text(limpiar(sem.semana), M + 8, y + 7);
+    doc.setFontSize(9.5); doc.setFont('helvetica', 'normal');
+    doc.setTextColor(CA[0], CA[1], CA[2]);
     const linAcc = doc.splitTextToSize(limpiar(sem.accion), PW - 20);
     doc.text(linAcc, M + 8, y + 13);
     y += hAcc + 5;
   });
+  esp(4);
+
+  // S5 — Plan de acción
+  seccionHeader('05', 'TU PLAN DE ACCION — PROXIMOS 30 DIAS');
+  bloqueAccion(r.plan_accion.esta_semana, RS, RJ, 'ESTA SEMANA');
+  bloqueAccion(r.plan_accion.este_mes, OS, OR, 'ESTE MES');
+  bloqueResultados(r.plan_accion.resultados_30_dias);
 
   dibujarFooter();
-  doc.save('RadarBarber-Plan-Servicios.pdf');
+  doc.save('RadarBarber-Reporte-Servicios.pdf');
 }
 
 export default function ReporteServicios() {
@@ -362,9 +425,9 @@ export default function ReporteServicios() {
       <div style={{ background: VERDE, padding: "16px 24px 20px" }}>
         <Logo />
         <div style={{ marginTop: 16 }}>
-          <span style={{ background: VERDE_CLARO, color: VERDE, fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 6, display: "inline-block", marginBottom: 10 }}>PLAN DE SERVICIOS</span>
+          <span style={{ background: VERDE_CLARO, color: VERDE, fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 6, display: "inline-block", marginBottom: 10 }}>REPORTE DE SERVICIOS</span>
           <h1 style={{ color: BLANCO, fontSize: 20, fontWeight: 700, margin: "0 0 6px", lineHeight: 1.3, fontFamily: "Georgia, serif" }}>
-            Una pregunta antes de tu plan
+            Una pregunta antes de tu reporte
           </h1>
           <p style={{ color: VERDE_CLARO, fontSize: 12, margin: 0, lineHeight: 1.6 }}>
             Selecciona los servicios que ya ofreces para recomendarte solo lo que te falta.
@@ -406,7 +469,7 @@ export default function ReporteServicios() {
           width: "100%", background: VERDE, color: BLANCO, border: "none",
           borderRadius: 12, padding: "15px", fontSize: 14, fontWeight: 700, cursor: "pointer",
         }}>
-          Generar mi Plan de Servicios →
+          Generar mi Reporte de Servicios →
         </button>
         <button onClick={() => window.history.back()} style={{
           width: "100%", background: "transparent", color: GRIS,
@@ -443,7 +506,7 @@ export default function ReporteServicios() {
       <div style={{ background: VERDE, padding: "16px 24px 20px" }}>
         <Logo />
         <div style={{ marginTop: 16 }}>
-          <span style={{ background: VERDE_CLARO, color: VERDE, fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 6, display: "inline-block", marginBottom: 10 }}>PLAN DE SERVICIOS</span>
+          <span style={{ background: VERDE_CLARO, color: VERDE, fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 6, display: "inline-block", marginBottom: 10 }}>REPORTE DE SERVICIOS</span>
           <h1 style={{ color: BLANCO, fontSize: 20, fontWeight: 700, margin: "0 0 6px", lineHeight: 1.3, fontFamily: "Georgia, serif" }}>
             Aumenta tu ticket sin nuevos clientes
           </h1>
@@ -530,12 +593,48 @@ export default function ReporteServicios() {
           ))}
         </Seccion>
 
+        <Seccion titulo="🎯 TU PLAN DE ACCION — PROXIMOS 30 DIAS">
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ background: ROJO_SUAVE, borderRadius: 8, padding: "6px 12px", marginBottom: 10, display: "inline-block" }}>
+              <span style={{ color: ROJO, fontSize: 11, fontWeight: 700 }}>ESTA SEMANA</span>
+            </div>
+            {r.plan_accion.esta_semana.map((accion, i) => (
+              <div key={i} style={{ display: "flex", gap: 10, marginBottom: 8 }}>
+                <div style={{ width: 22, height: 22, background: ROJO_SUAVE, borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: ROJO, flexShrink: 0 }}>{i + 1}</div>
+                <span style={{ color: CARBON, fontSize: 13, lineHeight: 1.5 }}>{accion}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ background: ORO_SUAVE, borderRadius: 8, padding: "6px 12px", marginBottom: 10, display: "inline-block" }}>
+              <span style={{ color: ORO, fontSize: 11, fontWeight: 700 }}>ESTE MES</span>
+            </div>
+            {r.plan_accion.este_mes.map((accion, i) => (
+              <div key={i} style={{ display: "flex", gap: 10, marginBottom: 8 }}>
+                <div style={{ width: 22, height: 22, background: ORO_SUAVE, borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: ORO, flexShrink: 0 }}>{i + 1}</div>
+                <span style={{ color: CARBON, fontSize: 13, lineHeight: 1.5 }}>{accion}</span>
+              </div>
+            ))}
+          </div>
+          <div>
+            <div style={{ background: VERDE_SUAVE, borderRadius: 8, padding: "6px 12px", marginBottom: 10, display: "inline-block" }}>
+              <span style={{ color: VERDE, fontSize: 11, fontWeight: 700 }}>EN 30 DÍAS DEBERÍAS VER</span>
+            </div>
+            {r.plan_accion.resultados_30_dias.map((resultado, i) => (
+              <div key={i} style={{ display: "flex", gap: 10, marginBottom: 8 }}>
+                <div style={{ width: 20, height: 20, background: VERDE, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 700, color: BLANCO, flexShrink: 0 }}>OK</div>
+                <span style={{ color: CARBON, fontSize: 13, lineHeight: 1.5 }}>{resultado}</span>
+              </div>
+            ))}
+          </div>
+        </Seccion>
+
         {!mostrarEmail ? (
           <div style={{ background: BLANCO, borderRadius: 14, padding: "20px", border: `1px solid ${GRIS_BORDE}`, marginBottom: 20 }}>
-            <div style={{ color: VERDE, fontSize: 13, fontWeight: 700, marginBottom: 6 }}>¿Quieres guardar este plan?</div>
+            <div style={{ color: VERDE, fontSize: 13, fontWeight: 700, marginBottom: 6 }}>¿Quieres guardar este reporte?</div>
             <p style={{ color: GRIS, fontSize: 12, lineHeight: 1.6, margin: "0 0 14px" }}>Descarga el PDF para tenerlo siempre a mano.</p>
             <button onClick={() => setMostrarEmail(true)} style={{ width: "100%", background: VERDE, color: BLANCO, border: "none", borderRadius: 12, padding: "14px", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>
-              Descargar PDF gratis →
+              Descargar PDF →
             </button>
           </div>
         ) : !emailOk ? (

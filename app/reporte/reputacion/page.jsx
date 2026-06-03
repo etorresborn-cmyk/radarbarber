@@ -55,10 +55,315 @@ function ScoreCircle({ score }) {
   );
 }
 
+async function generarPDFReputacion(r) {
+  const { jsPDF } = await import('jspdf');
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+  const VD = [27, 67, 50]; const VM = [45, 106, 79]; const VS = [216, 234, 224];
+  const VC = [183, 217, 198]; const OR = [154, 123, 58]; const OS = [245, 237, 214];
+  const CR = [250, 247, 240]; const CB = [221, 216, 204]; const CA = [26, 26, 26];
+  const GR = [107, 107, 107]; const BL = [255, 255, 255]; const RJ = [139, 46, 46];
+  const RS = [245, 224, 224];
+
+  const M = 15; const PW = 180; const FOOTER_Y = 283;
+  let y = 0; let numPag = 0;
+
+  function limpiar(t = '') {
+    return String(t)
+      .replace(/\u00e1/g,'a').replace(/\u00e9/g,'e').replace(/\u00ed/g,'i')
+      .replace(/\u00f3/g,'o').replace(/\u00fa/g,'u').replace(/\u00fc/g,'u')
+      .replace(/\u00c1/g,'A').replace(/\u00c9/g,'E').replace(/\u00cd/g,'I')
+      .replace(/\u00d3/g,'O').replace(/\u00da/g,'U').replace(/\u00dc/g,'U')
+      .replace(/\u00f1/g,'n').replace(/\u00d1/g,'N')
+      .replace(/[\u2018\u2019]/g,"'").replace(/[\u201C\u201D]/g,'"')
+      .replace(/[\u2013\u2014]/g,'-').replace(/\u2026/g,'...')
+      .replace(/[^\x00-\x7F]/g,'');
+  }
+
+  function getLineas(texto, ancho, size = 9.5) {
+    doc.setFontSize(size);
+    doc.setFont('helvetica', 'normal');
+    return doc.splitTextToSize(limpiar(texto), ancho);
+  }
+
+  function altH(texto, ancho, size = 9.5, lh = 5.2) {
+    return getLineas(texto, ancho, size).length * lh;
+  }
+
+  function chk(h) {
+    if (y + h > FOOTER_Y - 5) {
+      dibujarFooter(); doc.addPage(); numPag++; dibujarHeader(); y = 26;
+    }
+  }
+
+  function dibujarFooter() {
+    doc.setFillColor(VD[0], VD[1], VD[2]); doc.rect(0, FOOTER_Y, 210, 14, 'F');
+    doc.setFillColor(OR[0], OR[1], OR[2]); doc.rect(0, FOOTER_Y, 210, 1, 'F');
+    doc.setFontSize(7.5); doc.setFont('helvetica', 'normal');
+    doc.setTextColor(VC[0], VC[1], VC[2]);
+    doc.text('RadarBarber  |  Plan de Reputacion', M, FOOTER_Y + 8);
+    doc.text(`Pagina ${numPag}`, 210 - M, FOOTER_Y + 8, { align: 'right' });
+  }
+
+  function dibujarHeader() {
+    doc.setFillColor(VD[0], VD[1], VD[2]); doc.rect(0, 0, 210, 20, 'F');
+    doc.setFillColor(OR[0], OR[1], OR[2]); doc.rect(0, 20, 210, 1.2, 'F');
+    doc.setFillColor(VM[0], VM[1], VM[2]); doc.roundedRect(M, 4, 12, 12, 2, 2, 'F');
+    doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+    doc.setTextColor(BL[0], BL[1], BL[2]);
+    doc.text('RB', M + 6, 12, { align: 'center' });
+    doc.setFontSize(9); doc.setFont('helvetica', 'bold');
+    doc.setTextColor(BL[0], BL[1], BL[2]); doc.text('RADARBARBER', M + 16, 9);
+    doc.setFontSize(7.5); doc.setFont('helvetica', 'normal');
+    doc.setTextColor(VC[0], VC[1], VC[2]); doc.text('Plan de Reputacion', M + 16, 15);
+  }
+
+  function escribir(texto, x, yPos, maxW, size = 9.5, bold = false, color = CA, lh = 5.2) {
+    doc.setFontSize(size); doc.setFont('helvetica', bold ? 'bold' : 'normal');
+    doc.setTextColor(color[0], color[1], color[2]);
+    const lineas = doc.splitTextToSize(limpiar(texto), maxW);
+    doc.text(lineas, x, yPos);
+    return lineas.length * lh;
+  }
+
+  function seccionHeader(num, titulo) {
+    chk(18);
+    doc.setFillColor(VD[0], VD[1], VD[2]); doc.roundedRect(M, y, PW, 12, 2, 2, 'F');
+    doc.setFillColor(OR[0], OR[1], OR[2]); doc.circle(M + 8, y + 6, 5, 'F');
+    doc.setFontSize(8); doc.setFont('helvetica', 'bold');
+    doc.setTextColor(BL[0], BL[1], BL[2]);
+    doc.text(num, M + 8, y + 8.5, { align: 'center' });
+    doc.setFontSize(11); doc.setFont('helvetica', 'bold');
+    doc.setTextColor(BL[0], BL[1], BL[2]);
+    doc.text(limpiar(titulo), M + 18, y + 8);
+    y += 18;
+  }
+
+  function etq(texto, colorArr = OR) {
+    chk(8); doc.setFontSize(7.5); doc.setFont('helvetica', 'bold');
+    doc.setTextColor(colorArr[0], colorArr[1], colorArr[2]);
+    doc.text(limpiar(texto.toUpperCase()), M, y); y += 5;
+  }
+
+  function parr(texto, indent = 0, size = 9.5) {
+    const lineas = getLineas(texto, PW - indent, size);
+    const h = lineas.length * 5.2 + 3; chk(h);
+    doc.setFontSize(size); doc.setFont('helvetica', 'normal');
+    doc.setTextColor(CA[0], CA[1], CA[2]);
+    doc.text(lineas, M + indent, y); y += h;
+  }
+
+  function cajaDestacada(texto, bgArr = VS, bordeArr = VC, lineArr = VM) {
+    const lineas = getLineas(texto, PW - 16);
+    const h = lineas.length * 5.2 + 14; chk(h + 2);
+    doc.setFillColor(bgArr[0], bgArr[1], bgArr[2]);
+    doc.setDrawColor(bordeArr[0], bordeArr[1], bordeArr[2]);
+    doc.setLineWidth(0.4);
+    doc.roundedRect(M, y, PW, h, 2, 2, 'FD');
+    doc.setFillColor(lineArr[0], lineArr[1], lineArr[2]);
+    doc.rect(M, y, 3.5, h, 'F');
+    doc.setFontSize(9.5); doc.setFont('helvetica', 'normal');
+    doc.setTextColor(CA[0], CA[1], CA[2]);
+    doc.text(lineas, M + 7, y + 8); y += h + 5;
+  }
+
+  function esp(n = 5) { y += n; }
+  function sep() {
+    chk(8); doc.setDrawColor(CB[0], CB[1], CB[2]); doc.setLineWidth(0.3);
+    doc.line(M, y, M + PW, y); y += 6;
+  }
+
+  function bloqueAccion(acciones, bgArr, colorArr, titulo) {
+    chk(14);
+    doc.setFillColor(bgArr[0], bgArr[1], bgArr[2]);
+    doc.roundedRect(M, y, PW, 9, 2, 2, 'F');
+    doc.setFontSize(8); doc.setFont('helvetica', 'bold');
+    doc.setTextColor(colorArr[0], colorArr[1], colorArr[2]);
+    doc.text(titulo, M + 6, y + 6);
+    y += 13;
+    acciones.forEach((accion, i) => {
+      const h = altH(accion, PW - 12) + 4; chk(h);
+      doc.setFillColor(bgArr[0], bgArr[1], bgArr[2]);
+      doc.circle(M + 3.5, y + 1.5, 3.5, 'F');
+      doc.setFontSize(7.5); doc.setFont('helvetica', 'bold');
+      doc.setTextColor(colorArr[0], colorArr[1], colorArr[2]);
+      doc.text(`${i + 1}`, M + 3.5, y + 3.5, { align: 'center' });
+      escribir(accion, M + 10, y, PW - 12);
+      y += h + 1;
+    });
+    esp(6);
+  }
+
+  // ══ PORTADA ══════════════════════════════════════════════════════════
+  doc.setFillColor(VD[0], VD[1], VD[2]); doc.rect(0, 0, 210, 297, 'F');
+  doc.setDrawColor(45, 106, 79); doc.setLineWidth(0.3);
+  for (let i = 0; i < 8; i++) doc.line(0, 30 + i * 35, 210, 30 + i * 35);
+  doc.setFillColor(VM[0], VM[1], VM[2]); doc.roundedRect(M, 28, 22, 22, 4, 4, 'F');
+  doc.setFillColor(OR[0], OR[1], OR[2]); doc.roundedRect(M, 28, 22, 3, 1, 1, 'F');
+  doc.setFontSize(13); doc.setFont('helvetica', 'bold');
+  doc.setTextColor(BL[0], BL[1], BL[2]); doc.text('RB', M + 11, 44, { align: 'center' });
+  doc.setFontSize(44); doc.setFont('helvetica', 'bold');
+  doc.setTextColor(BL[0], BL[1], BL[2]); doc.text('RADAR', M, 95);
+  doc.setTextColor(OS[0], OS[1], OS[2]); doc.text('BARBER', M, 118);
+  doc.setFillColor(OR[0], OR[1], OR[2]); doc.rect(M, 125, 90, 1.5, 'F');
+  doc.setFontSize(18); doc.setFont('helvetica', 'normal');
+  doc.setTextColor(BL[0], BL[1], BL[2]); doc.text('Plan de', M, 142);
+  doc.setFont('helvetica', 'bold'); doc.text('Reputacion Online', M, 155);
+  doc.setFontSize(10); doc.setFont('helvetica', 'normal');
+  doc.setTextColor(VC[0], VC[1], VC[2]);
+  doc.text('Sistema para dominar Google Maps', M, 168);
+  doc.setFillColor(20, 52, 38); doc.roundedRect(M, 182, PW, 68, 4, 4, 'F');
+  doc.setFillColor(OR[0], OR[1], OR[2]); doc.rect(M, 182, 3.5, 68, 'F');
+  doc.setFontSize(8.5); doc.setFont('helvetica', 'bold');
+  doc.setTextColor(OS[0], OS[1], OS[2]); doc.text('ESTE PLAN INCLUYE:', M + 10, 193);
+  const items = [
+    '01  Tu score de reputacion actual',
+    '02  Sistema de resenas en 3 pasos',
+    '03  Gestion semanal en minutos',
+    '04  Respuestas modelo para copiar',
+    '05  Acciones urgentes en Google Business',
+    '06  Tu plan de accion — proximos 30 dias',
+  ];
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(BL[0], BL[1], BL[2]);
+  items.forEach((item, i) => doc.text(item, M + 10, 200 + i * 8));
+  doc.setFontSize(8); doc.setTextColor(60, 120, 90);
+  const fecha = new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
+  doc.text(`Generado el ${limpiar(fecha)}`, M, 268);
+  doc.setTextColor(45, 106, 79);
+  doc.text('radarbarber.vercel.app', 210 - M, 268, { align: 'right' });
+
+  // ══ CONTENIDO ══════════════════════════════════════════════════════════
+  doc.addPage(); numPag = 2; dibujarHeader(); y = 28;
+
+  // S1 — Score
+  seccionHeader('01', 'TU SCORE DE REPUTACION ACTUAL');
+  const scoreCol = r.diagnostico.score_actual >= 70 ? VM : r.diagnostico.score_actual >= 40 ? OR : RJ;
+  const scoreBgCol = r.diagnostico.score_actual >= 70 ? VS : r.diagnostico.score_actual >= 40 ? OS : RS;
+  doc.setFillColor(scoreBgCol[0], scoreBgCol[1], scoreBgCol[2]);
+  doc.circle(M + 14, y + 14, 14, 'F');
+  doc.setLineWidth(2); doc.setDrawColor(scoreCol[0], scoreCol[1], scoreCol[2]);
+  doc.circle(M + 14, y + 14, 14, 'D');
+  doc.setFontSize(16); doc.setFont('helvetica', 'bold');
+  doc.setTextColor(scoreCol[0], scoreCol[1], scoreCol[2]);
+  doc.text(String(r.diagnostico.score_actual), M + 14, y + 17, { align: 'center' });
+  doc.setFontSize(7); doc.text('/ 100', M + 14, y + 23, { align: 'center' });
+  escribir(r.diagnostico.resumen, M + 34, y + 8, PW - 36);
+  y += 32; esp(3);
+
+  const wMitad = (PW - 4) / 2;
+  const hImp = altH(r.diagnostico.impacto_mensual, wMitad - 8, 8.5) + 16;
+  const hMeta = altH(r.diagnostico.meta_30_dias, wMitad - 8, 8.5) + 16;
+  const hDoble = Math.max(hImp, hMeta, 24);
+  chk(hDoble + 2);
+  [0, 1].forEach(i => {
+    const x = M + i * (wMitad + 4);
+    const label = i === 0 ? 'IMPACTO MENSUAL' : 'META 30 DIAS';
+    const val = i === 0 ? r.diagnostico.impacto_mensual : r.diagnostico.meta_30_dias;
+    const bg = i === 0 ? RS : VS; const borde = i === 0 ? [221, 180, 180] : VC;
+    const col = i === 0 ? RJ : VM;
+    doc.setFillColor(bg[0], bg[1], bg[2]);
+    doc.setDrawColor(borde[0], borde[1], borde[2]);
+    doc.setLineWidth(0.3); doc.roundedRect(x, y, wMitad, hDoble, 2, 2, 'FD');
+    doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+    doc.setTextColor(col[0], col[1], col[2]); doc.text(label, x + 4, y + 6);
+    doc.setFontSize(8.5); doc.setFont('helvetica', 'normal');
+    doc.setTextColor(CA[0], CA[1], CA[2]);
+    const ls = doc.splitTextToSize(limpiar(i === 0 ? r.diagnostico.impacto_mensual : r.diagnostico.meta_30_dias), wMitad - 8);
+    doc.text(ls, x + 4, y + 12);
+  });
+  y += hDoble + 8;
+
+  // S2 — Sistema reseñas
+  seccionHeader('02', 'TU SISTEMA DE RESENAS EN 3 PASOS');
+  [
+    { paso: r.sistema_resenas.paso1, num: '1', key: 'script', label: 'LO QUE DICES:' },
+    { paso: r.sistema_resenas.paso2, num: '2', key: 'instrucciones', label: 'COMO HACERLO:' },
+    { paso: r.sistema_resenas.paso3, num: '3', key: 'mensaje', label: 'MENSAJE WHATSAPP:' },
+  ].forEach(({ paso, num, key, label }, i) => {
+    chk(40);
+    doc.setFillColor(VD[0], VD[1], VD[2]); doc.circle(M + 5, y + 4, 5, 'F');
+    doc.setFontSize(8); doc.setFont('helvetica', 'bold');
+    doc.setTextColor(BL[0], BL[1], BL[2]); doc.text(num, M + 5, y + 6.5, { align: 'center' });
+    doc.setFontSize(10); doc.setFont('helvetica', 'bold');
+    doc.setTextColor(CA[0], CA[1], CA[2]); doc.text(limpiar(paso.titulo), M + 14, y + 5);
+    y += 12;
+    parr(paso.descripcion, 4, 9); esp(2);
+    etq(label, OR);
+    cajaDestacada(paso[key]);
+    if (i < 2) { esp(2); sep(); }
+  });
+
+  // S3 — Gestión semanal
+  seccionHeader('03', 'GESTION SEMANAL EN MINUTOS');
+  chk(12);
+  doc.setFillColor(VS[0], VS[1], VS[2]); doc.roundedRect(M, y, PW, 10, 2, 2, 'F');
+  doc.setFontSize(9); doc.setFont('helvetica', 'bold');
+  doc.setTextColor(VD[0], VD[1], VD[2]);
+  doc.text(`Tiempo requerido: ${limpiar(r.gestion_semanal.tiempo_requerido)}`, M + 6, y + 7);
+  y += 14;
+  r.gestion_semanal.acciones.forEach((accion, j) => {
+    const h = altH(accion, PW - 12) + 4; chk(h);
+    doc.setFillColor(VS[0], VS[1], VS[2]); doc.circle(M + 3.5, y + 1.5, 3.5, 'F');
+    doc.setFontSize(7.5); doc.setFont('helvetica', 'bold');
+    doc.setTextColor(VD[0], VD[1], VD[2]); doc.text(`${j + 1}`, M + 3.5, y + 3.5, { align: 'center' });
+    escribir(accion, M + 10, y, PW - 12); y += h + 1;
+  });
+  esp(6);
+
+  // S4 — Respuestas modelo
+  seccionHeader('04', 'RESPUESTAS MODELO PARA COPIAR');
+  [
+    { data: r.respuestas_modelo.positiva, label: 'RESENA POSITIVA', bg: VS, borde: VC, lineC: VM },
+    { data: r.respuestas_modelo.negativa, label: 'RESENA NEGATIVA', bg: RS, borde: [221, 180, 180], lineC: RJ },
+  ].forEach(({ data, label, bg, borde, lineC }, i) => {
+    chk(40);
+    doc.setFillColor(bg[0], bg[1], bg[2]); doc.roundedRect(M, y, PW, 8, 2, 2, 'F');
+    doc.setFontSize(8); doc.setFont('helvetica', 'bold');
+    doc.setTextColor(lineC[0], lineC[1], lineC[2]); doc.text(label, M + 4, y + 5.5);
+    doc.setFontSize(7.5); doc.setFont('helvetica', 'normal');
+    doc.setTextColor(GR[0], GR[1], GR[2]); doc.text(limpiar(data.contexto), M + 60, y + 5.5);
+    y += 12;
+    cajaDestacada(data.texto, bg, borde, lineC);
+    if (i === 0) esp(3);
+  });
+
+  // S5 — Google Business
+  seccionHeader('05', 'GOOGLE BUSINESS — ACCIONES URGENTES');
+  r.google_business.acciones_urgentes.forEach((accion, j) => {
+    const h = altH(accion, PW - 12) + 4; chk(h);
+    doc.setFillColor(220, 60, 60); doc.circle(M + 3, y + 2, 2.5, 'F');
+    doc.setFontSize(8); doc.setFont('helvetica', 'bold');
+    doc.setTextColor(BL[0], BL[1], BL[2]); doc.text('!', M + 3, y + 4, { align: 'center' });
+    escribir(accion, M + 9, y, PW - 12); y += h + 2;
+  });
+  esp(6);
+
+  // S6 — Plan de acción
+  seccionHeader('06', 'TU PLAN DE ACCION — PROXIMOS 30 DIAS');
+  bloqueAccion(r.plan_accion.esta_semana, RS, RJ, 'ESTA SEMANA');
+  bloqueAccion(r.plan_accion.este_mes, OS, OR, 'ESTE MES');
+
+  // Resultados en 30 días
+  chk(14);
+  doc.setFillColor(VS[0], VS[1], VS[2]); doc.roundedRect(M, y, PW, 9, 2, 2, 'F');
+  doc.setFontSize(8); doc.setFont('helvetica', 'bold');
+  doc.setTextColor(VD[0], VD[1], VD[2]); doc.text('EN 30 DIAS DEBERIAS VER', M + 6, y + 6);
+  y += 13;
+  r.plan_accion.resultados_30_dias.forEach((resultado) => {
+    const h = altH(resultado, PW - 12) + 4; chk(h);
+    doc.setFontSize(10); doc.setFont('helvetica', 'bold');
+    doc.setTextColor(VM[0], VM[1], VM[2]); doc.text('✓', M + 3, y + 3);
+    escribir(resultado, M + 10, y, PW - 12); y += h + 1;
+  });
+
+  dibujarFooter();
+  doc.save('RadarBarber-Plan-Reputacion.pdf');
+}
+
 export default function ReporteReputacion() {
   const [estado, setEstado] = useState("cargando");
   const [reporte, setReporte] = useState(null);
-  const [nivel, setNivel] = useState(null);
   const [email, setEmail] = useState("");
   const [emailOk, setEmailOk] = useState(false);
   const [mostrarEmail, setMostrarEmail] = useState(false);
@@ -77,11 +382,8 @@ export default function ReporteReputacion() {
         body: JSON.stringify(respuestas),
       });
       const data = await res.json();
-      if (data.ok) {
-        setReporte(data.reporte);
-        setNivel(data.nivel);
-        setEstado("listo");
-      } else setEstado("error");
+      if (data.ok) { setReporte(data.reporte); setEstado("listo"); }
+      else setEstado("error");
     } catch { setEstado("error"); }
   }
 
@@ -115,14 +417,13 @@ export default function ReporteReputacion() {
 
   const r = reporte;
   const scoreColor = r.diagnostico.score_actual >= 70 ? VERDE2 : r.diagnostico.score_actual >= 40 ? ORO : ROJO;
-  const scoreBg = r.diagnostico.score_actual >= 70 ? VERDE_SUAVE : r.diagnostico.score_actual >= 40 ? ORO_SUAVE : ROJO_SUAVE;
 
   return (
     <div style={{ background: CREMA, minHeight: "100vh", fontFamily: "system-ui", maxWidth: 480, margin: "0 auto" }}>
       <div style={{ background: VERDE, padding: "16px 24px 20px" }}>
         <Logo />
         <div style={{ marginTop: 16 }}>
-          <span style={{ background: VERDE_CLARO, color: VERDE, fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 6, display: "inline-block", marginBottom: 10 }}>PLAN DE REPUTACION</span>
+          <span style={{ background: VERDE_CLARO, color: VERDE, fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 6, display: "inline-block", marginBottom: 10 }}>REPORTE DE REPUTACION</span>
           <h1 style={{ color: BLANCO, fontSize: 20, fontWeight: 700, margin: "0 0 6px", lineHeight: 1.3, fontFamily: "Georgia, serif" }}>
             Tu sistema para dominar Google Maps
           </h1>
@@ -132,7 +433,6 @@ export default function ReporteReputacion() {
 
       <div style={{ padding: "20px 24px" }}>
 
-        {/* SECCIÓN 1 — Diagnóstico */}
         <Seccion titulo="⭐ TU SCORE DE REPUTACION ACTUAL">
           <ScoreCircle score={r.diagnostico.score_actual} />
           <div style={{ height: 1, background: GRIS_BORDE, margin: "14px 0" }} />
@@ -149,7 +449,6 @@ export default function ReporteReputacion() {
           </div>
         </Seccion>
 
-        {/* SECCIÓN 2 — Sistema de reseñas */}
         <Seccion titulo="🔄 TU SISTEMA DE RESENAS EN 3 PASOS">
           {[
             { data: r.sistema_resenas.paso1, num: "1", contenidoKey: "script", contenidoLabel: "LO QUE DICES:" },
@@ -166,14 +465,13 @@ export default function ReporteReputacion() {
               </div>
               <div style={{ background: CREMA3, borderRadius: 10, padding: "12px 14px", marginLeft: 40 }}>
                 <div style={{ color: VERDE, fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", marginBottom: 6 }}>{contenidoLabel}</div>
-                <p style={{ color: CARBON, fontSize: 12, lineHeight: 1.7, margin: 0, fontStyle: num === "3" ? "normal" : "italic" }}>{data[contenidoKey]}</p>
+                <p style={{ color: CARBON, fontSize: 12, lineHeight: 1.7, margin: 0, fontStyle: "italic" }}>{data[contenidoKey]}</p>
               </div>
               {i < 2 && <div style={{ height: 1, background: GRIS_BORDE, margin: "16px 0" }} />}
             </div>
           ))}
         </Seccion>
 
-        {/* SECCIÓN 3 — Gestión semanal */}
         <Seccion titulo="📅 GESTION SEMANAL EN MINUTOS">
           <div style={{ background: VERDE_SUAVE, borderRadius: 10, padding: "10px 14px", marginBottom: 14, border: `1px solid ${VERDE_CLARO}` }}>
             <span style={{ color: VERDE, fontSize: 12, fontWeight: 700 }}>⏱ Tiempo requerido: </span>
@@ -187,7 +485,6 @@ export default function ReporteReputacion() {
           ))}
         </Seccion>
 
-        {/* SECCIÓN 4 — Respuestas modelo */}
         <Seccion titulo="💬 RESPUESTAS MODELO PARA COPIAR">
           {[
             { data: r.respuestas_modelo.positiva, color: VERDE, bg: VERDE_SUAVE, borde: VERDE_CLARO, etiqueta: "RESEÑA POSITIVA" },
@@ -205,7 +502,6 @@ export default function ReporteReputacion() {
           ))}
         </Seccion>
 
-        {/* SECCIÓN 5 — Google Business */}
         <Seccion titulo="🗺️ GOOGLE BUSINESS — ACCIONES URGENTES">
           {r.google_business.acciones_urgentes.map((accion, i) => (
             <div key={i} style={{ display: "flex", gap: 10, marginBottom: 10 }}>
@@ -215,13 +511,50 @@ export default function ReporteReputacion() {
           ))}
         </Seccion>
 
+        {/* PLAN DE ACCIÓN */}
+        <Seccion titulo="🎯 TU PLAN DE ACCION — PROXIMOS 30 DIAS">
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ background: ROJO_SUAVE, borderRadius: 8, padding: "6px 12px", marginBottom: 10, display: "inline-block" }}>
+              <span style={{ color: ROJO, fontSize: 11, fontWeight: 700 }}>ESTA SEMANA</span>
+            </div>
+            {r.plan_accion.esta_semana.map((accion, i) => (
+              <div key={i} style={{ display: "flex", gap: 10, marginBottom: 8 }}>
+                <div style={{ width: 22, height: 22, background: ROJO_SUAVE, borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: ROJO, flexShrink: 0 }}>{i + 1}</div>
+                <span style={{ color: CARBON, fontSize: 13, lineHeight: 1.5 }}>{accion}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ background: ORO_SUAVE, borderRadius: 8, padding: "6px 12px", marginBottom: 10, display: "inline-block" }}>
+              <span style={{ color: ORO, fontSize: 11, fontWeight: 700 }}>ESTE MES</span>
+            </div>
+            {r.plan_accion.este_mes.map((accion, i) => (
+              <div key={i} style={{ display: "flex", gap: 10, marginBottom: 8 }}>
+                <div style={{ width: 22, height: 22, background: ORO_SUAVE, borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: ORO, flexShrink: 0 }}>{i + 1}</div>
+                <span style={{ color: CARBON, fontSize: 13, lineHeight: 1.5 }}>{accion}</span>
+              </div>
+            ))}
+          </div>
+          <div>
+            <div style={{ background: VERDE_SUAVE, borderRadius: 8, padding: "6px 12px", marginBottom: 10, display: "inline-block" }}>
+              <span style={{ color: VERDE, fontSize: 11, fontWeight: 700 }}>EN 30 DÍAS DEBERÍAS VER</span>
+            </div>
+            {r.plan_accion.resultados_30_dias.map((resultado, i) => (
+              <div key={i} style={{ display: "flex", gap: 10, marginBottom: 8 }}>
+                <span style={{ color: VERDE, fontSize: 16, flexShrink: 0 }}>✓</span>
+                <span style={{ color: CARBON, fontSize: 13, lineHeight: 1.5 }}>{resultado}</span>
+              </div>
+            ))}
+          </div>
+        </Seccion>
+
         {/* BOTÓN DESCARGAR */}
         {!mostrarEmail ? (
           <div style={{ background: BLANCO, borderRadius: 14, padding: "20px", border: `1px solid ${GRIS_BORDE}`, marginBottom: 20 }}>
-            <div style={{ color: VERDE, fontSize: 13, fontWeight: 700, marginBottom: 6 }}>¿Quieres guardar este plan?</div>
+            <div style={{ color: VERDE, fontSize: 13, fontWeight: 700, marginBottom: 6 }}>¿Quieres guardar este reporte?</div>
             <p style={{ color: GRIS, fontSize: 12, lineHeight: 1.6, margin: "0 0 14px" }}>Descarga el PDF para tenerlo siempre a mano.</p>
             <button onClick={() => setMostrarEmail(true)} style={{ width: "100%", background: VERDE, color: BLANCO, border: "none", borderRadius: 12, padding: "14px", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>
-              Descargar PDF gratis →
+              Descargar PDF →
             </button>
           </div>
         ) : !emailOk ? (
@@ -229,8 +562,8 @@ export default function ReporteReputacion() {
             <div style={{ color: VERDE, fontSize: 13, fontWeight: 700, marginBottom: 6 }}>Un ultimo paso</div>
             <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="tucorreo@email.com"
               style={{ width: "100%", background: CREMA, border: `1.5px solid ${GRIS_BORDE}`, borderRadius: 10, padding: "13px 16px", color: CARBON, fontSize: 14, boxSizing: "border-box", outline: "none", marginBottom: 12 }} />
-            <button onClick={() => { if (email) { setEmailOk(true); generarPDF(); } }} disabled={!email}
-              style={{ width: "100%", background: email ? VERDE : CREMA3, color: email ? BLANCO : GRIS, border: "none", borderRadius: 12, padding: "14px", fontSize: 14, fontWeight: 700, cursor: email ? "pointer" : "not-allowed" }}>
+            <button onClick={() => { if (email) { setEmailOk(true); generarPDFReputacion(r); } }} disabled={!email}
+              style={{ width: "100%", background: email ? VERDE : "#E8E0CC", color: email ? BLANCO : GRIS, border: "none", borderRadius: 12, padding: "14px", fontSize: 14, fontWeight: 700, cursor: email ? "pointer" : "not-allowed" }}>
               Descargar mi PDF →
             </button>
           </div>
@@ -248,377 +581,4 @@ export default function ReporteReputacion() {
       </div>
     </div>
   );
-
-  async function generarPDF() {
-    const { jsPDF } = await import('jspdf');
-    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-
-    const VD = [27, 67, 50];
-    const VM = [45, 106, 79];
-    const VS = [216, 234, 224];
-    const VC = [183, 217, 198];
-    const OR = [154, 123, 58];
-    const OS = [245, 237, 214];
-    const CR = [250, 247, 240];
-    const CB = [221, 216, 204];
-    const CA = [26, 26, 26];
-    const GR = [107, 107, 107];
-    const BL = [255, 255, 255];
-    const RJ = [139, 46, 46];
-    const RS = [245, 224, 224];
-
-    const M = 15;
-    const PW = 180;
-    const FOOTER_Y = 283;
-    let y = 0;
-    let numPag = 0;
-
-    function limpiar(t = '') {
-      return String(t)
-        .replace(/\u00e1/g,'a').replace(/\u00e9/g,'e').replace(/\u00ed/g,'i')
-        .replace(/\u00f3/g,'o').replace(/\u00fa/g,'u').replace(/\u00fc/g,'u')
-        .replace(/\u00c1/g,'A').replace(/\u00c9/g,'E').replace(/\u00cd/g,'I')
-        .replace(/\u00d3/g,'O').replace(/\u00da/g,'U').replace(/\u00dc/g,'U')
-        .replace(/\u00f1/g,'n').replace(/\u00d1/g,'N')
-        .replace(/[\u2018\u2019]/g,"'").replace(/[\u201C\u201D]/g,'"')
-        .replace(/[\u2013\u2014]/g,'-').replace(/\u2026/g,'...')
-        .replace(/[^\x00-\x7F]/g,'');
-    }
-
-    function altH(texto, ancho, size = 9.5, lh = 5.2) {
-      doc.setFontSize(size);
-      return doc.splitTextToSize(limpiar(texto), ancho).length * lh;
-    }
-
-    function chk(h) {
-      if (y + h > FOOTER_Y - 5) {
-        dibujarFooter();
-        doc.addPage();
-        numPag++;
-        dibujarHeader();
-        y = 26;
-      }
-    }
-
-    function dibujarFooter() {
-      doc.setFillColor(...VD);
-      doc.rect(0, FOOTER_Y, 210, 14, 'F');
-      doc.setFillColor(...OR);
-      doc.rect(0, FOOTER_Y, 210, 1, 'F');
-      doc.setFontSize(7.5);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(...VC);
-      doc.text('RadarBarber  |  Plan de Reputacion', M, FOOTER_Y + 8);
-      doc.text(`Pagina ${numPag}`, 210 - M, FOOTER_Y + 8, { align: 'right' });
-    }
-
-    function dibujarHeader() {
-      doc.setFillColor(...VD);
-      doc.rect(0, 0, 210, 20, 'F');
-      doc.setFillColor(...OR);
-      doc.rect(0, 20, 210, 1.2, 'F');
-      doc.setFillColor(...VM);
-      doc.roundedRect(M, 4, 12, 12, 2, 2, 'F');
-      doc.setFontSize(7);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(...BL);
-      doc.text('RB', M + 6, 12, { align: 'center' });
-      doc.setFontSize(9);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(...BL);
-      doc.text('RADARBARBER', M + 16, 9);
-      doc.setFontSize(7.5);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(...VC);
-      doc.text('Plan de Reputacion', M + 16, 15);
-    }
-
-    function escribir(texto, x, yPos, maxW, size = 9.5, bold = false, color = CA, lh = 5.2) {
-      doc.setFontSize(size);
-      doc.setFont('helvetica', bold ? 'bold' : 'normal');
-      doc.setTextColor(...color);
-      const lineas = doc.splitTextToSize(limpiar(texto), maxW);
-      doc.text(lineas, x, yPos);
-      return lineas.length * lh;
-    }
-
-    function seccionHeader(num, titulo) {
-      chk(18);
-      doc.setFillColor(...VD);
-      doc.roundedRect(M, y, PW, 12, 2, 2, 'F');
-      doc.setFillColor(...OR);
-      doc.circle(M + 8, y + 6, 5, 'F');
-      doc.setFontSize(8);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(...BL);
-      doc.text(num, M + 8, y + 8.5, { align: 'center' });
-      doc.setFontSize(11);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(...BL);
-      doc.text(limpiar(titulo), M + 18, y + 8);
-      y += 18;
-    }
-
-    function etq(texto, color = OR) {
-      chk(8);
-      doc.setFontSize(7.5);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(...color);
-      doc.text(limpiar(texto.toUpperCase()), M, y);
-      y += 5;
-    }
-
-    function parr(texto, indent = 0, size = 9.5) {
-      const h = altH(texto, PW - indent, size) + 3;
-      chk(h);
-      escribir(texto, M + indent, y, PW - indent, size);
-      y += h;
-    }
-
-    function cajaNormal(texto, bgColor = CR, borde = CB) {
-      doc.setFontSize(9.5);
-      doc.setFont('helvetica', 'normal');
-      const lineas = doc.splitTextToSize(limpiar(texto), PW - 12);
-      const h = lineas.length * 5.2 + 12;
-      chk(h + 2);
-      doc.setFillColor(...bgColor);
-      doc.setDrawColor(...borde);
-      doc.setLineWidth(0.4);
-      doc.roundedRect(M, y, PW, h, 2, 2, 'FD');
-      doc.setTextColor(...CA);
-      doc.text(lineas, M + 6, y + 7);
-      y += h + 4;
-    }
-
-    function cajaDestacada(texto, bgColor = VS, borde = VC, lineLeft = VM) {
-      doc.setFontSize(9.5);
-      doc.setFont('helvetica', 'normal');
-      const lineas = doc.splitTextToSize(limpiar(texto), PW - 16);
-      const h = lineas.length * 5.2 + 12;
-      chk(h + 2);
-      doc.setFillColor(...bgColor);
-      doc.setDrawColor(...borde);
-      doc.setLineWidth(0.4);
-      doc.roundedRect(M, y, PW, h, 2, 2, 'FD');
-      doc.setFillColor(...lineLeft);
-      doc.rect(M, y, 3.5, h, 'F');
-      doc.setFontSize(9.5);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(...CA);
-      doc.text(lineas, M + 7, y + 7);
-      y += h + 5;
-    }
-
-    function esp(n = 5) { y += n; }
-    function sep() {
-      chk(8);
-      doc.setDrawColor(...CB);
-      doc.setLineWidth(0.3);
-      doc.line(M, y, M + PW, y);
-      y += 6;
-    }
-
-    // ══ PORTADA ══════════════════════════════════════════════════════════
-    doc.setFillColor(...VD);
-    doc.rect(0, 0, 210, 297, 'F');
-    doc.setDrawColor(45, 106, 79);
-    doc.setLineWidth(0.3);
-    for (let i = 0; i < 8; i++) doc.line(0, 30 + i * 35, 210, 30 + i * 35);
-
-    doc.setFillColor(...VM);
-    doc.roundedRect(M, 28, 22, 22, 4, 4, 'F');
-    doc.setFillColor(...OR);
-    doc.roundedRect(M, 28, 22, 3, 1, 1, 'F');
-    doc.setFontSize(13);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(...BL);
-    doc.text('RB', M + 11, 44, { align: 'center' });
-
-    doc.setFontSize(44);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(...BL);
-    doc.text('RADAR', M, 95);
-    doc.setTextColor(...OS);
-    doc.text('BARBER', M, 118);
-    doc.setFillColor(...OR);
-    doc.rect(M, 125, 90, 1.5, 'F');
-
-    doc.setFontSize(18);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(...BL);
-    doc.text('Plan de', M, 142);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Reputacion Online', M, 155);
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(...VC);
-    doc.text('Sistema para dominar Google Maps', M, 168);
-
-    doc.setFillColor(20, 52, 38);
-    doc.roundedRect(M, 182, PW, 68, 4, 4, 'F');
-    doc.setFillColor(...OR);
-    doc.rect(M, 182, 3.5, 68, 'F');
-    doc.setFontSize(8.5);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(...OS);
-    doc.text('ESTE PLAN INCLUYE:', M + 10, 193);
-    const items = [
-      '01  Tu score de reputacion actual',
-      '02  Sistema de resenas en 3 pasos',
-      '03  Gestion semanal en minutos',
-      '04  Respuestas modelo para copiar',
-      '05  Acciones urgentes en Google Business',
-    ];
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(...BL);
-    items.forEach((item, i) => doc.text(item, M + 10, 203 + i * 9));
-    doc.setFontSize(8);
-    doc.setTextColor(60, 120, 90);
-    const fecha = new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
-    doc.text(`Generado el ${limpiar(fecha)}`, M, 268);
-    doc.setTextColor(45, 106, 79);
-    doc.text('radarbarber.vercel.app', 210 - M, 268, { align: 'right' });
-
-    // ══ CONTENIDO ══════════════════════════════════════════════════════════
-    doc.addPage();
-    numPag = 2;
-    dibujarHeader();
-    y = 28;
-
-    // SECCIÓN 1 — Score
-    seccionHeader('01', 'TU SCORE DE REPUTACION ACTUAL');
-    const scoreCol = r.diagnostico.score_actual >= 70 ? VM : r.diagnostico.score_actual >= 40 ? OR : RJ;
-    const scoreBgCol = r.diagnostico.score_actual >= 70 ? VS : r.diagnostico.score_actual >= 40 ? OS : RS;
-    doc.setFillColor(...scoreBgCol);
-    doc.circle(M + 14, y + 14, 14, 'F');
-    doc.setFillColor(...scoreCol);
-    doc.setLineWidth(2);
-    doc.setDrawColor(...scoreCol);
-    doc.circle(M + 14, y + 14, 14, 'D');
-    doc.setFontSize(16);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(...scoreCol);
-    doc.text(String(r.diagnostico.score_actual), M + 14, y + 17, { align: 'center' });
-    doc.setFontSize(7);
-    doc.text('/ 100', M + 14, y + 23, { align: 'center' });
-    escribir(r.diagnostico.resumen, M + 34, y + 8, PW - 36);
-    y += 32;
-    esp(3);
-    const wMitad = (PW - 4) / 2;
-    const hImp = altH(r.diagnostico.impacto_mensual, wMitad - 8, 8.5) + 16;
-    const hMeta = altH(r.diagnostico.meta_30_dias, wMitad - 8, 8.5) + 16;
-    const hDoble = Math.max(hImp, hMeta, 24);
-    chk(hDoble + 2);
-    [0, 1].forEach(i => {
-      const x = M + i * (wMitad + 4);
-      const label = i === 0 ? 'IMPACTO MENSUAL' : 'META 30 DIAS';
-      const val = i === 0 ? r.diagnostico.impacto_mensual : r.diagnostico.meta_30_dias;
-      const bg = i === 0 ? RS : VS;
-      const borde = i === 0 ? [221, 180, 180] : VC;
-      doc.setFillColor(...bg);
-      doc.setDrawColor(...borde);
-      doc.setLineWidth(0.3);
-      doc.roundedRect(x, y, wMitad, hDoble, 2, 2, 'FD');
-      doc.setFontSize(7);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(i === 0 ? RJ[0] : VM[0], i === 0 ? RJ[1] : VM[1], i === 0 ? RJ[2] : VM[2]);
-      doc.text(label, x + 4, y + 6);
-      doc.setFontSize(8.5);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(...CA);
-      const ls = doc.splitTextToSize(limpiar(val), wMitad - 8);
-      doc.text(ls, x + 4, y + 12);
-    });
-    y += hDoble + 8;
-
-    // SECCIÓN 2 — Sistema de reseñas
-    seccionHeader('02', 'TU SISTEMA DE RESENAS EN 3 PASOS');
-    [
-      { paso: r.sistema_resenas.paso1, num: '1', key: 'script', label: 'LO QUE DICES:' },
-      { paso: r.sistema_resenas.paso2, num: '2', key: 'instrucciones', label: 'COMO HACERLO:' },
-      { paso: r.sistema_resenas.paso3, num: '3', key: 'mensaje', label: 'MENSAJE WHATSAPP:' },
-    ].forEach(({ paso, num, key, label }, i) => {
-      chk(40);
-      doc.setFillColor(...VD);
-      doc.circle(M + 5, y + 4, 5, 'F');
-      doc.setFontSize(8);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(...BL);
-      doc.text(num, M + 5, y + 6.5, { align: 'center' });
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(...CA);
-      doc.text(limpiar(paso.titulo), M + 14, y + 5);
-      y += 12;
-      parr(paso.descripcion, 4, 9);
-      esp(2);
-      etq(label);
-      cajaDestacada(paso[key]);
-      if (i < 2) { esp(2); sep(); }
-    });
-
-    // SECCIÓN 3 — Gestión semanal
-    seccionHeader('03', 'GESTION SEMANAL EN MINUTOS');
-    chk(12);
-    doc.setFillColor(...VS);
-    doc.roundedRect(M, y, PW, 10, 2, 2, 'F');
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(...VD);
-    doc.text(`Tiempo requerido: ${limpiar(r.gestion_semanal.tiempo_requerido)}`, M + 6, y + 7);
-    y += 14;
-    r.gestion_semanal.acciones.forEach((accion, j) => {
-      const h = altH(accion, PW - 12) + 4;
-      chk(h);
-      doc.setFillColor(...VS);
-      doc.circle(M + 3.5, y + 1.5, 3.5, 'F');
-      doc.setFontSize(7.5);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(...VD);
-      doc.text(`${j + 1}`, M + 3.5, y + 3.5, { align: 'center' });
-      escribir(accion, M + 10, y, PW - 12);
-      y += h + 1;
-    });
-    esp(6);
-
-    // SECCIÓN 4 — Respuestas modelo
-    seccionHeader('04', 'RESPUESTAS MODELO PARA COPIAR');
-    [
-      { data: r.respuestas_modelo.positiva, label: 'RESENA POSITIVA', bg: VS, borde: VC, lineC: VM },
-      { data: r.respuestas_modelo.negativa, label: 'RESENA NEGATIVA', bg: RS, borde: [221, 180, 180], lineC: RJ },
-    ].forEach(({ data, label, bg, borde, lineC }, i) => {
-      chk(40);
-      doc.setFillColor(...(i === 0 ? VS : RS));
-      doc.roundedRect(M, y, PW, 8, 2, 2, 'F');
-      doc.setFontSize(8);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(...lineC);
-      doc.text(label, M + 4, y + 5.5);
-      doc.setFontSize(7.5);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(...GR);
-      doc.text(limpiar(data.contexto), M + 60, y + 5.5);
-      y += 12;
-      cajaDestacada(data.texto, bg, borde, lineC);
-      if (i === 0) esp(3);
-    });
-
-    // SECCIÓN 5 — Google Business
-    seccionHeader('05', 'GOOGLE BUSINESS — ACCIONES URGENTES');
-    r.google_business.acciones_urgentes.forEach((accion, j) => {
-      const h = altH(accion, PW - 12) + 4;
-      chk(h);
-      doc.setFillColor(...[220, 60, 60]);
-      doc.circle(M + 3, y + 2, 2.5, 'F');
-      doc.setFontSize(8);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(...BL);
-      doc.text('!', M + 3, y + 4, { align: 'center' });
-      escribir(accion, M + 9, y, PW - 12);
-      y += h + 2;
-    });
-
-    dibujarFooter();
-    doc.save('RadarBarber-Plan-Reputacion.pdf');
-  }
 }

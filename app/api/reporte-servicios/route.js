@@ -113,6 +113,21 @@ Genera JSON con esta estructura exacta, sin texto extra, sin backticks:
       "accion": "que hacer en semana 3 en max 25 palabras"
     }
   ]
+  "plan_accion": {
+    "esta_semana": [
+      "accion concreta #1 para implementar el primer servicio nuevo esta semana en max 20 palabras",
+      "accion concreta #2 para preparar el upsell con el equipo en max 20 palabras"
+    ],
+    "este_mes": [
+      "accion concreta #3 para consolidar los nuevos servicios en max 20 palabras",
+      "accion concreta #4 para medir el impacto en ticket promedio en max 20 palabras"
+    ],
+    "resultados_30_dias": [
+      "resultado medible #1 en pesos MXN especifico para esta barberia",
+      "resultado medible #2 especifico sobre ticket promedio",
+      "resultado medible #3 sobre adopcion de servicios nuevos"
+    ]
+  }
 }
 
 REGLAS:

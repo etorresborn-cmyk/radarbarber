@@ -145,6 +145,21 @@ Genera JSON con esta estructura exacta, sin texto extra, sin backticks:
       "respuesta": "respuesta exacta lista para usar"
     }
   ]
+  "plan_accion": {
+    "esta_semana": [
+      "accion concreta #1 relacionada con precios para hacer hoy o manana en max 20 palabras",
+      "accion concreta #2 relacionada con precios para hacer antes del viernes en max 20 palabras"
+    ],
+    "este_mes": [
+      "accion concreta #3 sistema de precios a implementar en max 20 palabras",
+      "accion concreta #4 habito de revision de precios a construir en max 20 palabras"
+    ],
+    "resultados_30_dias": [
+      "resultado medible #1 especifico en pesos MXN para esta barberia",
+      "resultado medible #2 especifico para esta barberia",
+      "resultado medible #3 especifico para esta barberia"
+    ]
+   }
 }
 
 REGLAS:

@@ -134,6 +134,22 @@ Genera JSON con esta estructura exacta, sin texto extra, sin backticks:
       "accion urgente especifica #3 en max 15 palabras"
     ]
   }
+    "plan_accion": {
+    "esta_semana": [
+      "accion concreta #1 para hacer hoy o manana en max 20 palabras",
+      "accion concreta #2 para hacer antes del viernes en max 20 palabras"
+    ],
+    "este_mes": [
+      "accion concreta #3 sistema a implementar en max 20 palabras",
+      "accion concreta #4 habito a construir en max 20 palabras"
+    ],
+    "resultados_30_dias": [
+      "resultado medible #1 especifico para esta barberia",
+      "resultado medible #2 especifico para esta barberia",
+      "resultado medible #3 especifico para esta barberia"
+    ]
+  }
+    
 }
 
 REGLAS:

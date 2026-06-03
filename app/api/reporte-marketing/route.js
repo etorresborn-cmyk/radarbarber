@@ -150,6 +150,21 @@ Genera JSON con esta estructura exacta, sin texto extra, sin backticks:
       "cta": "llamado a la accion en max 10 palabras"
     }
   ]
+    "plan_accion": {
+    "esta_semana": [
+      "accion concreta #1 de marketing para implementar esta semana en max 20 palabras",
+      "accion concreta #2 de marketing para hacer antes del viernes en max 20 palabras"
+    ],
+    "este_mes": [
+      "accion concreta #3 sistema de marketing a implementar en max 20 palabras",
+      "accion concreta #4 habito de contenido a construir en max 20 palabras"
+    ],
+    "resultados_30_dias": [
+      "resultado medible #1 especifico en clientes o pesos MXN",
+      "resultado medible #2 especifico sobre presencia digital",
+      "resultado medible #3 sobre engagement o conversiones"
+    ]
+  }
 }`;
 
   const llamarAPI = async (prompt) => {
@@ -185,6 +200,7 @@ Genera JSON con esta estructura exacta, sin texto extra, sin backticks:
       promocion: parte1.promocion,
       calendario: parte2.calendario,
       posts: parte2.posts,
+      plan_accion: parte2.plan_accion,
     };
 
     return Response.json({ ok: true, reporte });
