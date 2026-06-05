@@ -469,7 +469,7 @@ const reportes = [
   { precioReal: "$7 USD", nombre: "Reporte de Precios", desc: "Cuánto cobrar exactamente y cómo subir precios sin perder clientes.", ruta: "/reporte/precios" },
   { precioReal: "$7 USD", nombre: "Reporte de Reputación", desc: "Sistema de 3 pasos para generar reseñas constantes en Google.", ruta: "/reporte/reputacion" },
   { precioReal: "$15 USD", nombre: "Reporte de Marketing", desc: "Clientes nuevos esta semana + 3 posts listos para publicar.", destacado: true, ruta: "/reporte/marketing" },
-  { precioReal: "$29 USD", nombre: "Bundle Completo ⭐", desc: "Todos los reportes juntos. Disponible próximamente.", ruta: "/reporte/bundle" },
+  { precioReal: "$29 USD", nombre: "Bundle Completo ⭐", desc: "Todos los reportes juntos. Ahorro de $7 vs obtener por separado.", ruta: "/reporte/bundle" },
 ];
 
 export default function Home() {
