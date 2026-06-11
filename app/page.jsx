@@ -732,7 +732,24 @@ export default function Home() {
                 placeholder="tucorreo@email.com"
                 style={{ width: "100%", background: CREMA, border: `1.5px solid ${GRIS_BORDE}`, borderRadius: 10, padding: "12px 16px", color: CARBON, fontSize: 14, boxSizing: "border-box", outline: "none", marginBottom: 10, fontFamily: "system-ui" }}
               />
-              <BtnPrimario onClick={() => { if (email) { setEmailOk(true); generarPDFReporte(reporte, diagnosticoIA); } }} disabled={!email}>
+              <BtnPrimario onClick={async () => {
+                if (!email) return;
+                setEmailOk(true);
+                // Guardar email en Google Sheets (no bloquea si falla)
+                try {
+                  await fetch("/api/guardar-email", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      email,
+                      clientes: respuestas.clientes || "",
+                      resenas: respuestas.resenas || "",
+                      dolor: respuestas.dolor || "",
+                    }),
+                  });
+                } catch (_) { /* silencioso */ }
+                generarPDFReporte(reporte, diagnosticoIA);
+              }} disabled={!email}>
                 Descargar PDF sin costo →
               </BtnPrimario>
             </div>
