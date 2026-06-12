@@ -794,9 +794,9 @@ export default function Home() {
             </p>
             <button
               onClick={() => setMostrarReportes(!mostrarReportes)}
-              style={{ width: "100%", background: VERDE, color: BLANCO, border: "none", borderRadius: 10, padding: "13px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
+              style={{ width: "100%", background: VERDE2, color: BLANCO, border: "none", borderRadius: 16, padding: "18px", fontSize: 16, fontWeight: 700, cursor: "pointer" }}
             >
-              {mostrarReportes ? "Ocultar reportes ▲" : "Ver cómo resolver cada fuga →"}
+              {mostrarReportes ? "Ocultar reportes ▲" : "Desbloquear mis 4 reportes personalizados →"}
             </button>
           </div>
 
