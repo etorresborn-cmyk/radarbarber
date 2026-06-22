@@ -524,24 +524,33 @@ export default function Home() {
     <div style={{ background: CREMA, minHeight: "100vh", fontFamily: "Georgia, serif", maxWidth: 480, margin: "0 auto" }}>
       <div style={{ background: VERDE, padding: "24px 24px 28px" }}>
         <Logo />
-        <h1 style={{ color: BLANCO, fontSize: 24, fontWeight: 700, lineHeight: 1.3, margin: "20px 0 10px" }}>
-          ¿Por qué tu competencia tiene más clientes?
+        <div style={{ background: "#D4A017", color: "#1A1A1A", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", fontFamily: "system-ui", padding: "5px 12px", borderRadius: 20, display: "inline-block", marginTop: 16, marginBottom: 14 }}>GRATIS — SOLO POR LANZAMIENTO</div>
+        <h1 style={{ color: BLANCO, fontSize: 26, fontWeight: 700, lineHeight: 1.2, margin: "0 0 12px", fontFamily: "Georgia, serif" }}>
+          Tu barbería debería ganar <span style={{ color: VERDE_CLARO }}>$40,000 MXN más</span> al mes.
         </h1>
-        <p style={{ color: VERDE_CLARO, fontSize: 13, lineHeight: 1.7, margin: 0 }}>
-          Responde 3 preguntas y recibe un reporte sin costo con el diagnóstico real de tu barbería.
+        <p style={{ color: VERDE_CLARO, fontSize: 13, lineHeight: 1.7, margin: 0, fontFamily: "system-ui" }}>
+          Responde 3 preguntas y descubre exactamente por qué no está pasando — con números reales del sector.
         </p>
       </div>
-      <div style={{ padding: "24px" }}>
-        <div style={{ background: BLANCO, borderRadius: 14, padding: "18px", marginBottom: 18, border: `1px solid ${GRIS_BORDE}` }}>
-          <div style={{ color: VERDE, fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", fontFamily: "system-ui", marginBottom: 14 }}>TU REPORTE SIN COSTO INCLUYE</div>
+      <div style={{ padding: "20px 20px 24px" }}>
+        <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+          {[["3", "preguntas"], ["2", "minutos"], ["1", "reporte PDF"]].map(([num, label]) => (
+            <div key={label} style={{ flex: 1, background: BLANCO, border: `1px solid ${GRIS_BORDE}`, borderRadius: 10, padding: "10px 6px", textAlign: "center" }}>
+              <div style={{ color: VERDE, fontSize: 22, fontWeight: 700, fontFamily: "Georgia, serif" }}>{num}</div>
+              <div style={{ color: GRIS, fontSize: 10, fontFamily: "system-ui", marginTop: 2 }}>{label}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ background: BLANCO, borderRadius: 14, padding: "18px", marginBottom: 14, border: `1px solid ${GRIS_BORDE}` }}>
+          <div style={{ color: VERDE, fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", fontFamily: "system-ui", marginBottom: 14 }}>TU REPORTE INCLUYE</div>
           {[
-            ["🤖", "Diagnóstico con IA", "Análisis basado en datos reales del sector en México"],
-            ["📊", "Radiografía financiera", "Tu ingreso estimado vs el benchmark del sector"],
-            ["🔴", "Tus 3 fugas de dinero", "Dónde pierdes dinero y cuánto, en pesos concretos"],
-            ["🏆", "Tu score de salud", "4 dimensiones evaluadas con acciones concretas"],
-          ].map(([ic, t, d]) => (
-            <div key={t} style={{ display: "flex", gap: 12, marginBottom: 12 }}>
-              <span style={{ fontSize: 18, flexShrink: 0 }}>{ic}</span>
+            ["🤖", "#D8EAE0", "Diagnóstico con IA", "Qué está frenando tu barbería, en pesos"],
+            ["💰", "#FEF3E2", "Cuánto deberías ganar", "Tu ingreso real vs. el benchmark del sector"],
+            ["🔴", "#FDECEA", "Tus 3 fugas de dinero", "Dónde se escapa el dinero y cuánto"],
+            ["🏆", "#EAF3DE", "Tu score de salud", "4 dimensiones con acciones concretas"],
+          ].map(([ic, bg, t, d]) => (
+            <div key={t} style={{ display: "flex", gap: 12, marginBottom: 12, alignItems: "flex-start" }}>
+              <div style={{ width: 34, height: 34, borderRadius: 8, background: bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>{ic}</div>
               <div>
                 <div style={{ color: CARBON, fontSize: 12, fontWeight: 700, fontFamily: "system-ui", marginBottom: 2 }}>{t}</div>
                 <div style={{ color: GRIS, fontSize: 11, lineHeight: 1.5, fontFamily: "system-ui" }}>{d}</div>
@@ -549,7 +558,10 @@ export default function Home() {
             </div>
           ))}
         </div>
-        <BtnPrimario onClick={() => setPantalla("formulario")}>Ver mi reporte sin costo →</BtnPrimario>
+        <div style={{ background: "#FEF3E2", border: "1px solid #F5DFB0", borderRadius: 10, padding: "10px 14px", marginBottom: 14, textAlign: "center", color: "#854F0B", fontSize: 12, fontFamily: "system-ui" }}>
+          ⏳ Cuando termine el lanzamiento, pasará a ser de pago
+        </div>
+        <BtnPrimario onClick={() => setPantalla("formulario")}>Quiero mi diagnóstico gratis →</BtnPrimario>
         <p style={{ color: GRIS, fontSize: 11, textAlign: "center", marginTop: 10, fontFamily: "system-ui" }}>Sin spam · Sin tarjeta · 30 segundos</p>
       </div>
     </div>
