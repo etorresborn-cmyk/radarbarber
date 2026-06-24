@@ -493,24 +493,43 @@ export default function Home() {
       setPaso(paso + 1);
       setSeleccion(null);
     } else {
-      setPantalla("cargando");
-      try {
-        const res = await fetch("/api/diagnostico", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(nuevas),
-        });
-        const data = await res.json();
-        setDiagnosticoIA(data.diagnostico);
-        setReporte(calcularReporte(nuevas));
-        sessionStorage.setItem("radarbarber_respuestas", JSON.stringify(nuevas));
-        setPantalla("reporte");
-      } catch {
-        setReporte(calcularReporte(nuevas));
-        setDiagnosticoIA("Tu barberia tiene oportunidades claras de crecimiento que no estas aprovechando.");
-        sessionStorage.setItem("radarbarber_respuestas", JSON.stringify(nuevas));
-        setPantalla("reporte");
-      }
+      setPantalla("email");
+    }
+  }
+
+  async function generarReporte() {
+    if (!email) return;
+    // Guardar email en Google Sheets
+    try {
+      await fetch("/api/guardar-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          clientes: respuestas.clientes || "",
+          resenas: respuestas.resenas || "",
+          dolor: respuestas.dolor || "",
+        }),
+      });
+    } catch (_) { /* silencioso */ }
+    // Generar reporte
+    setPantalla("cargando");
+    try {
+      const res = await fetch("/api/diagnostico", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(respuestas),
+      });
+      const data = await res.json();
+      setDiagnosticoIA(data.diagnostico);
+      setReporte(calcularReporte(respuestas));
+      sessionStorage.setItem("radarbarber_respuestas", JSON.stringify(respuestas));
+      setPantalla("reporte");
+    } catch {
+      setReporte(calcularReporte(respuestas));
+      setDiagnosticoIA("Tu barberia tiene oportunidades claras de crecimiento que no estas aprovechando.");
+      sessionStorage.setItem("radarbarber_respuestas", JSON.stringify(respuestas));
+      setPantalla("reporte");
     }
   }
 
@@ -564,6 +583,46 @@ export default function Home() {
         <BtnPrimario onClick={() => setPantalla("formulario")}>Quiero mi diagnóstico gratis →</BtnPrimario>
         <p style={{ color: GRIS, fontSize: 11, textAlign: "center", marginTop: 10, fontFamily: "system-ui" }}>Sin spam · Sin tarjeta · 30 segundos</p>
       </div>
+    </div>
+  );
+
+  // ── EMAIL ────────────────────────────────────────────────────────────────────
+  if (pantalla === "email") return (
+    <div style={{ background: CREMA, minHeight: "100vh", fontFamily: "Georgia, serif", maxWidth: 480, margin: "0 auto", display: "flex", flexDirection: "column", justifyContent: "center", padding: "40px 24px" }}>
+      <div style={{ textAlign: "center", marginBottom: 32 }}>
+        <div style={{ fontSize: 48, marginBottom: 16 }}>📊</div>
+        <h2 style={{ color: CARBON, fontSize: 24, fontWeight: 700, lineHeight: 1.3, margin: "0 0 12px" }}>
+          Tu reporte está listo.
+        </h2>
+        <p style={{ color: GRIS, fontSize: 14, lineHeight: 1.7, margin: 0, fontFamily: "system-ui" }}>
+          Déjanos tu correo para recibir el informe gratuito y acceder a tu diagnóstico personalizado.
+        </p>
+      </div>
+      <div style={{ background: BLANCO, borderRadius: 14, padding: "24px", border: `1px solid ${GRIS_BORDE}`, marginBottom: 16 }}>
+        <div style={{ color: VERDE, fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", fontFamily: "system-ui", marginBottom: 16 }}>TU REPORTE INCLUYE</div>
+        {[
+          ["🤖", "Diagnóstico con IA personalizado"],
+          ["💰", "Cuánto deberías ganar vs. hoy"],
+          ["🔴", "Tus 3 fugas de dinero en pesos"],
+          ["🏆", "Tu score de salud con acciones concretas"],
+        ].map(([ic, t]) => (
+          <div key={t} style={{ display: "flex", gap: 10, marginBottom: 10, alignItems: "center", fontFamily: "system-ui" }}>
+            <span style={{ fontSize: 16 }}>{ic}</span>
+            <span style={{ color: CARBON, fontSize: 13, fontWeight: 500 }}>{t}</span>
+          </div>
+        ))}
+      </div>
+      <input
+        type="email"
+        value={email}
+        onChange={e => setEmail(e.target.value)}
+        placeholder="tucorreo@email.com"
+        style={{ width: "100%", background: BLANCO, border: `1.5px solid ${GRIS_BORDE}`, borderRadius: 10, padding: "14px 16px", color: CARBON, fontSize: 14, boxSizing: "border-box", outline: "none", marginBottom: 12, fontFamily: "system-ui" }}
+      />
+      <BtnPrimario onClick={generarReporte} disabled={!email}>
+        Ver mi diagnóstico gratis →
+      </BtnPrimario>
+      <p style={{ color: GRIS, fontSize: 11, textAlign: "center", marginTop: 10, fontFamily: "system-ui" }}>Sin spam · Sin tarjeta · Gratis solo por lanzamiento</p>
     </div>
   );
 
