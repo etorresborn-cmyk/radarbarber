@@ -551,7 +551,9 @@ export default function Home() {
         <p style={{ color: VERDE_CLARO, fontSize: 13, lineHeight: 1.6, margin: "0 0 20px", fontFamily: "system-ui" }}>
           Responde 3 preguntas y recibe tu diagnóstico gratuito con números reales del sector.
         </p>
-        <BtnPrimario onClick={() => setPantalla("formulario")}>Quiero mi diagnóstico gratis →</BtnPrimario>
+        <button onClick={() => setPantalla("formulario")} style={{ width: "100%", background: "#D4A017", color: "#1A1A1A", border: "none", borderRadius: 12, padding: "16px", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: "system-ui", letterSpacing: "0.01em" }}>
+          Quiero mi diagnóstico gratis →
+        </button>
         <p style={{ color: VERDE_SUAVE, fontSize: 11, textAlign: "center", marginTop: 10, fontFamily: "system-ui", opacity: 0.8 }}>Sin spam · Sin tarjeta · 2 minutos</p>
       </div>
       {/* BENEFICIOS — debajo del fold, para quien quiere saber más */}
