@@ -546,40 +546,56 @@ export default function Home() {
   // ── INICIO ───────────────────────────────────────────────────────────────────
   if (pantalla === "inicio") return (
     <div style={{ background: CREMA, minHeight: "100vh", fontFamily: "Georgia, serif", maxWidth: 480, margin: "0 auto", display: "flex", flexDirection: "column" }}>
-      {/* HERO — todo visible sin scroll en móvil */}
-      <div style={{ background: VERDE, padding: "24px 24px 32px", flex: "none" }}>
+      <div style={{ background: VERDE, padding: "20px 24px 28px", flex: "none" }}>
         <Logo />
-        <div style={{ background: "#D4A017", color: "#1A1A1A", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", fontFamily: "system-ui", padding: "5px 12px", borderRadius: 20, display: "inline-block", marginTop: 16, marginBottom: 14 }}>GRATIS — SOLO POR LANZAMIENTO</div>
-        <h1 style={{ color: BLANCO, fontSize: 26, fontWeight: 700, lineHeight: 1.2, margin: "0 0 10px", fontFamily: "Georgia, serif" }}>
-          ¿Tu barbería gana lo que debería?
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 14, marginBottom: 12 }}>
+          <div style={{ display: "flex" }}>
+            {["#4A90D9","#E67E22","#27AE60","#8E44AD"].map((c, i) => (
+              <div key={i} style={{ width: 22, height: 22, borderRadius: "50%", background: c, border: "2px solid #1B4332", marginLeft: i > 0 ? -6 : 0, fontSize: 9, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "system-ui", fontWeight: 700 }}>{["B","M","J","R"][i]}</div>
+            ))}
+          </div>
+          <span style={{ color: VERDE_CLARO, fontSize: 12, fontFamily: "system-ui" }}><strong style={{ color: BLANCO }}>+340 barberos</strong> ya recibieron su diagnóstico</span>
+        </div>
+        <h1 style={{ color: BLANCO, fontSize: 26, fontWeight: 700, lineHeight: 1.2, margin: "0 0 8px", fontFamily: "Georgia, serif" }}>
+          Tu barbería está perdiendo dinero.<br /><span style={{ color: "#D4A017" }}>Descubre cuánto y por qué.</span>
         </h1>
-        <p style={{ color: VERDE_CLARO, fontSize: 13, lineHeight: 1.6, margin: "0 0 20px", fontFamily: "system-ui" }}>
-          Responde 3 preguntas y recibe tu diagnóstico gratuito con números reales del sector.
-        </p>
-        <button onClick={() => { track("cta_landing_click"); setPantalla("formulario"); }} style={{ width: "100%", background: "#D4A017", color: "#1A1A1A", border: "none", borderRadius: 12, padding: "16px", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: "system-ui", letterSpacing: "0.01em" }}>
-          Quiero mi diagnóstico gratis →
-        </button>
-        <p style={{ color: VERDE_SUAVE, fontSize: 11, textAlign: "center", marginTop: 10, fontFamily: "system-ui", opacity: 0.8 }}>Sin spam · Sin tarjeta · 2 minutos</p>
+        <p style={{ color: VERDE_CLARO, fontSize: 13, lineHeight: 1.6, margin: "0 0 18px", fontFamily: "system-ui" }}>3 preguntas · diagnóstico gratuito · números reales del sector mexicano.</p>
+        <button onClick={() => { track("cta_landing_click"); setPantalla("formulario"); }} style={{ width: "100%", background: "#D4A017", color: "#1A1A1A", border: "none", borderRadius: 12, padding: "16px", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: "system-ui" }}>Ver mi diagnóstico gratis →</button>
+        <p style={{ color: VERDE_SUAVE, fontSize: 11, textAlign: "center", marginTop: 8, fontFamily: "system-ui", opacity: 0.8 }}>Sin spam · Sin tarjeta · 2 minutos</p>
       </div>
-      {/* BENEFICIOS — debajo del fold, para quien quiere saber más */}
-      <div style={{ padding: "20px 20px 24px" }}>
-        {[
-          ["🤖", "Diagnóstico con IA", "Qué está frenando tu barbería, en pesos"],
-          ["💰", "Cuánto deberías ganar", "Tu ingreso real vs. el benchmark del sector"],
-          ["🔴", "Tus 3 fugas de dinero", "Dónde se escapa el dinero y cuánto"],
-          ["🏆", "Tu score de salud", "4 dimensiones con acciones concretas"],
-        ].map(([ic, t, d]) => (
-          <div key={t} style={{ display: "flex", gap: 12, marginBottom: 14, alignItems: "flex-start" }}>
-            <div style={{ fontSize: 20, flexShrink: 0, marginTop: 1 }}>{ic}</div>
-            <div>
-              <div style={{ color: CARBON, fontSize: 13, fontWeight: 700, fontFamily: "system-ui", marginBottom: 2 }}>{t}</div>
-              <div style={{ color: GRIS, fontSize: 12, lineHeight: 1.5, fontFamily: "system-ui" }}>{d}</div>
+      <div style={{ padding: "20px 20px 0" }}>
+        <div style={{ color: GRIS, fontSize: 11, fontFamily: "system-ui", textAlign: "center", marginBottom: 10, letterSpacing: "0.05em", textTransform: "uppercase" }}>Tu reporte incluye</div>
+        <div style={{ background: BLANCO, borderRadius: 14, border: `1px solid ${GRIS_BORDE}`, overflow: "hidden", marginBottom: 16 }}>
+          <div style={{ background: VERDE, padding: "12px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ color: BLANCO, fontSize: 13, fontWeight: 700, fontFamily: "system-ui" }}>Diagnóstico RadarBarber</span>
+            <span style={{ background: "#D4A017", color: "#1A1A1A", fontSize: 9, fontWeight: 700, fontFamily: "system-ui", padding: "2px 8px", borderRadius: 10 }}>EJEMPLO</span>
+          </div>
+          <div style={{ padding: "14px 16px", borderBottom: `1px solid ${GRIS_BORDE}` }}>
+            <div style={{ color: GRIS, fontSize: 10, fontFamily: "system-ui", marginBottom: 6 }}>SCORE DE SALUD DE TU BARBERÍA</div>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+              <span style={{ color: VERDE, fontSize: 32, fontWeight: 700, fontFamily: "Georgia, serif" }}>62</span>
+              <span style={{ color: GRIS, fontSize: 13, fontFamily: "system-ui" }}>/100 — Hay margen de mejora</span>
+            </div>
+            <div style={{ background: CREMA2, borderRadius: 6, height: 6, marginTop: 8, overflow: "hidden" }}>
+              <div style={{ background: VERDE2, width: "62%", height: "100%", borderRadius: 6 }} />
             </div>
           </div>
-        ))}
-        <div style={{ borderTop: `1px solid ${GRIS_BORDE}`, paddingTop: 16, marginTop: 4, textAlign: "center", color: "#854F0B", fontSize: 12, fontFamily: "system-ui" }}>
-          ⏳ Gratis solo durante el lanzamiento
+          <div style={{ padding: "12px 16px", filter: "blur(3px)", userSelect: "none" }}>
+            <div style={{ color: GRIS, fontSize: 10, fontFamily: "system-ui", marginBottom: 8 }}>TUS 3 FUGAS DE DINERO</div>
+            {[["Retención baja de clientes","$18,400/mes"],["Ticket promedio bajo","$9,200/mes"],["Sin sistema de reseñas","$6,800/mes"]].map(([t, v]) => (
+              <div key={t} style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                <span style={{ color: CARBON, fontSize: 12, fontFamily: "system-ui" }}>{t}</span>
+                <span style={{ color: "#C0392B", fontSize: 12, fontWeight: 700, fontFamily: "system-ui" }}>{v}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ padding: "0 16px 14px", textAlign: "center", marginTop: -20 }}>
+            <div style={{ color: CARBON, fontSize: 13, fontWeight: 700, fontFamily: "system-ui" }}>Desbloquea tu reporte real →</div>
+          </div>
         </div>
+      </div>
+      <div style={{ padding: "0 20px 24px" }}>
+        <div style={{ background: "#FEF3E2", border: "1px solid #F5DFB0", borderRadius: 10, padding: "10px 14px", textAlign: "center", color: "#854F0B", fontSize: 12, fontFamily: "system-ui" }}>⏳ Gratis solo durante el lanzamiento — pasa a ser de pago pronto</div>
       </div>
     </div>
   );
