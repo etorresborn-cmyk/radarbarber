@@ -1,5 +1,6 @@
 'use client';
 import { useState } from "react";
+import { track } from "@vercel/analytics";
 
 const CREMA = "#FAF7F0";
 const CREMA2 = "#F2EDE0";
@@ -489,6 +490,7 @@ export default function Home() {
     if (!seleccion) return;
     const nuevas = { ...respuestas, [pregunta.id]: seleccion };
     setRespuestas(nuevas);
+    track("pregunta_respondida", { paso: paso + 1, pregunta: pregunta.id });
     if (paso < preguntas.length - 1) {
       setPaso(paso + 1);
       setSeleccion(null);
@@ -499,6 +501,7 @@ export default function Home() {
 
   async function generarReporte() {
     if (!email) return;
+    track("email_capturado");
     // Guardar email en Google Sheets
     try {
       await fetch("/api/guardar-email", {
@@ -524,11 +527,13 @@ export default function Home() {
       setDiagnosticoIA(data.diagnostico);
       setReporte(calcularReporte(respuestas));
       sessionStorage.setItem("radarbarber_respuestas", JSON.stringify(respuestas));
+      track("reporte_generado");
       setPantalla("reporte");
     } catch {
       setReporte(calcularReporte(respuestas));
       setDiagnosticoIA("Tu barberia tiene oportunidades claras de crecimiento que no estas aprovechando.");
       sessionStorage.setItem("radarbarber_respuestas", JSON.stringify(respuestas));
+      track("reporte_generado");
       setPantalla("reporte");
     }
   }
@@ -551,7 +556,7 @@ export default function Home() {
         <p style={{ color: VERDE_CLARO, fontSize: 13, lineHeight: 1.6, margin: "0 0 20px", fontFamily: "system-ui" }}>
           Responde 3 preguntas y recibe tu diagnóstico gratuito con números reales del sector.
         </p>
-        <button onClick={() => setPantalla("formulario")} style={{ width: "100%", background: "#D4A017", color: "#1A1A1A", border: "none", borderRadius: 12, padding: "16px", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: "system-ui", letterSpacing: "0.01em" }}>
+        <button onClick={() => { track("cta_landing_click"); setPantalla("formulario"); }} style={{ width: "100%", background: "#D4A017", color: "#1A1A1A", border: "none", borderRadius: 12, padding: "16px", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: "system-ui", letterSpacing: "0.01em" }}>
           Quiero mi diagnóstico gratis →
         </button>
         <p style={{ color: VERDE_SUAVE, fontSize: 11, textAlign: "center", marginTop: 10, fontFamily: "system-ui", opacity: 0.8 }}>Sin spam · Sin tarjeta · 2 minutos</p>

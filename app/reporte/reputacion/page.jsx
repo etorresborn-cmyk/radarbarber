@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from "react";
+import { track } from "@vercel/analytics";
 
 const CREMA = "#FAF7F0";
 const CREMA3 = "#E8E0CC";
@@ -562,7 +563,7 @@ export default function ReporteReputacion() {
             <div style={{ color: VERDE, fontSize: 13, fontWeight: 700, marginBottom: 6 }}>Un ultimo paso</div>
             <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="tucorreo@email.com"
               style={{ width: "100%", background: CREMA, border: `1.5px solid ${GRIS_BORDE}`, borderRadius: 10, padding: "13px 16px", color: CARBON, fontSize: 14, boxSizing: "border-box", outline: "none", marginBottom: 12 }} />
-            <button onClick={async () => { if (email) { setEmailOk(true); try { await fetch("/api/guardar-email", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, reporte: "reputacion" }) }); } catch (_) {} generarPDFReputacion(r); } }} disabled={!email}
+            <button onClick={async () => { if (email) { setEmailOk(true); try { await fetch("/api/guardar-email", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, reporte: "reputacion" }) }); } catch (_) {} track("pdf_descargado", { reporte: "reputacion" }); generarPDFReputacion(r); } }} disabled={!email}
               style={{ width: "100%", background: email ? VERDE : "#E8E0CC", color: email ? BLANCO : GRIS, border: "none", borderRadius: 12, padding: "14px", fontSize: 14, fontWeight: 700, cursor: email ? "pointer" : "not-allowed" }}>
               Descargar mi PDF →
             </button>
