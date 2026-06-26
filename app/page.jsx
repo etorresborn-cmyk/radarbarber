@@ -849,44 +849,32 @@ export default function Home() {
           {/* SEPARADOR */}
           <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "20px 0 16px" }}>
             <div style={{ flex: 1, height: 1, background: GRIS_BORDE }} />
-            <div style={{ color: GRIS, fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", whiteSpace: "nowrap" }}>¿QUIERES RESOLVER CADA FUGA?</div>
+            <div style={{ color: GRIS, fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", whiteSpace: "nowrap" }}>TUS REPORTES PERSONALIZADOS</div>
             <div style={{ flex: 1, height: 1, background: GRIS_BORDE }} />
           </div>
 
-          {/* CAJA FUGAS — llama a la acción */}
-          <div style={{ background: CARBON, borderRadius: 14, padding: "20px", marginBottom: 16, border: "1px solid #333" }}>
-            <div style={{ color: VERDE_CLARO, fontSize: 10, fontWeight: 700, letterSpacing: "0.15em", marginBottom: 10 }}>
-              LO QUE ENCONTRAMOS EN TU BARBERÍA
+          {/* CTA REPORTES — llama a la acción */}
+          <div style={{ background: "#FFFBF0", borderRadius: 14, padding: "20px", marginBottom: 16, border: "2px solid #D4A017" }}>
+            <div style={{ textAlign: "center", marginBottom: 12 }}>
+              <span style={{ background: "#D4A017", color: "#fff", fontSize: 10, fontWeight: 800, letterSpacing: "0.12em", padding: "4px 14px", borderRadius: 20 }}>
+                GRATIS DURANTE EL LANZAMIENTO
+              </span>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
-              {[
-                { icon: "🔴", texto: r.fuga1Titulo, urgencia: "Crítico" },
-                { icon: "🟠", texto: "Servicios adicionales sin explotar", urgencia: "Alto" },
-                { icon: "🟡", texto: r.scoreRep >= 80 ? "Reputación que puede posicionarte como #1" : "Reputación online débil", urgencia: "Medio" },
-              ].map((item, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, background: "#ffffff10", borderRadius: 8, padding: "10px 12px" }}>
-                  <span style={{ fontSize: 16, flexShrink: 0 }}>{item.icon}</span>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ color: BLANCO, fontSize: 12, fontWeight: 600, lineHeight: 1.3 }}>{item.texto}</div>
-                  </div>
-                  <span style={{ background: "#ffffff15", color: "#aaa", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 4, flexShrink: 0 }}>{item.urgencia}</span>
-                </div>
+            <div style={{ color: CARBON, fontSize: 17, fontWeight: 800, textAlign: "center", marginBottom: 8, lineHeight: 1.3 }}>
+              4 planes de acción listos para ti
+            </div>
+            <p style={{ color: GRIS, fontSize: 12, textAlign: "center", lineHeight: 1.6, margin: "0 0 14px" }}>
+              Cada reporte tiene pasos exactos y precios en pesos para resolver cada fuga que encontramos. Con PDF descargable.
+            </p>
+            <div style={{ display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap" }}>
+              {["📊 Marketing", "✂️ Servicios", "💰 Precios", "⭐ Reputación"].map((item) => (
+                <span key={item} style={{ color: "#8B6914", fontSize: 11, fontWeight: 700 }}>{item}</span>
               ))}
             </div>
-            <div style={{ height: 1, background: "#ffffff15", marginBottom: 14 }} />
-            <p style={{ color: "#ccc", fontSize: 12, lineHeight: 1.6, margin: "0 0 14px" }}>
-              Cada reporte tiene pasos exactos, precios en pesos y PDF descargable. Durante el lanzamiento todos están sin costo.
-            </p>
-            <button
-              onClick={() => setMostrarReportes(!mostrarReportes)}
-              style={{ width: "100%", background: VERDE2, color: BLANCO, border: "none", borderRadius: 16, padding: "18px", fontSize: 16, fontWeight: 700, cursor: "pointer" }}
-            >
-              {mostrarReportes ? "Ocultar reportes ▲" : "Desbloquear mis 4 reportes personalizados →"}
-            </button>
           </div>
 
           {/* REPORTES */}
-          {mostrarReportes && reportes.map((rep) => (
+          {reportes.map((rep) => (
             <div key={rep.nombre} style={{
               background: rep.destacado ? VERDE_SUAVE : BLANCO,
               borderRadius: 14, padding: "16px",
